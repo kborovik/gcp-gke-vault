@@ -1,0 +1,6 @@
+---
+all:
+  children:
+    openvpn_servers:
+      hosts:
+        ANSIBLE_OPENVPN_HOSTNAME:

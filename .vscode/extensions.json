@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "hashicorp.terraform",
+    "redhat.vscode-yaml",
+    "ms-azuretools.vscode-docker",
+    "streetsidesoftware.code-spell-checker",
+    "foxundermoon.shell-format",
+    "timonwong.shellcheck",
+    "aaron-bond.better-comments",
+    "esbenp.prettier-vscode",
+  ]
+}

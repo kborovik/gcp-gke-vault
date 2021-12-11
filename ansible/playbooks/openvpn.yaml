@@ -1,0 +1,89 @@
+---
+- name: Deploy OpenVPN Access Server
+  hosts: openvpn_servers
+  remote_user: cloudbuild
+  become: true
+
+  vars:
+    openvpn_version: 2.10.*
+    openvpn_hostname:
+    network_gcp: 10.128.0.0/16
+    dns_domain: lab5.gcp
+    dns_domain_suffix: lab5.gcp
+
+  handlers:
+    - name: Restart OpenVPN Service
+      service:
+        name: openvpnas
+        state: restarted
+
+  tasks:
+    - name: Install Pre-Requisites
+      apt:
+        name:
+          - net-tools
+          - gnupg
+        state: present
+
+    - name: Import OpenVPN GPG Key
+      apt_key:
+        id: 8B1BC7FECB7259E1430A3AA026EB39123AAAAA96
+        url: https://as-repository.openvpn.net/as-repo-public.gpg
+        state: present
+
+    - name: Add OpenVPN Apt Repository
+      apt_repository:
+        repo: deb http://as-repository.openvpn.net/as/debian focal main
+        state: present
+
+    - name: Install OpenVPN AS
+      apt:
+        name: openvpn-as={{ openvpn_version }}
+        update_cache: true
+        state: present
+
+    - name: Set OpenVPN Hostname
+      command: /usr/local/openvpn_as/scripts/sacli --key "host.name" --value "{{ openvpn_hostname }}" ConfigPut
+      register: command_result
+      changed_when:
+        - command_result.rc == 0
+
+    - name: Unset OpenVPN Default Gateway Re-Route
+      command: /usr/local/openvpn_as/scripts/sacli --key "vpn.client.routing.reroute_gw" --value "false" ConfigPut
+      register: command_result
+      changed_when:
+        - command_result.rc == 0
+
+    - name: Set OpenVPN Route to GCP Networks
+      command: /usr/local/openvpn_as/scripts/sacli --key "vpn.server.routing.private_network.0" --value "{{ network_gcp }}" ConfigPut
+      register: command_result
+      changed_when:
+        - command_result.rc == 0
+
+    - name: Set OpenVPN DNS Domain
+      command: /usr/local/openvpn_as/scripts/sacli --key "vpn.server.dhcp_option.domain" --value "{{ dns_domain }}" ConfigPut
+      register: command_result
+      changed_when:
+        - command_result.rc == 0
+
+    - name: Set OpenVPN DNS Domain Adapter Suffix
+      command: /usr/local/openvpn_as/scripts/sacli --key "vpn.server.dhcp_option.adapter_domain_suffix" --value "{{ dns_domain_suffix }}" ConfigPut
+      register: command_result
+      changed_when:
+        - command_result.rc == 0
+
+    - name: Set OpenVPN DNS Route
+      command: /usr/local/openvpn_as/scripts/sacli --key "vpn.client.routing.reroute_dns" --value "true" ConfigPut
+      register: command_result
+      changed_when:
+        - command_result.rc == 0
+      notify:
+        - Restart OpenVPN Service
+
+    - name: Copy OpenVPN support scripts
+      copy:
+        src: openvpn-create-user.sh
+        dest: /usr/local/bin/openvpn-create-user.sh
+        owner: root
+        group: root
+        mode: "0755"

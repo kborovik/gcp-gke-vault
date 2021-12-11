@@ -1,0 +1,10 @@
+**/.terraform/
+**/terraform.tfstate
+**/*.tfstate*
+**/*.json
+**/*.code-workspace
+**/tfplan.*
+**/.terraform.lock.hcl
+
+!.vscode/settings.json
+!.vscode/extensions.json

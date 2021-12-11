@@ -1,0 +1,17 @@
+---
+timeout: 900s
+
+options:
+  env:
+    - "GOOGLE_PROJECT=${PROJECT_ID}"
+
+steps:
+  # Suspend Terraform code
+  - id: "terraform_apply"
+    name: "us-west2-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    entrypoint: "bash"
+    waitFor:
+      - "-"
+    args:
+      - "-c"
+      - "./scripts/gcp-deploy.sh -p ${PROJECT_ID} -s"

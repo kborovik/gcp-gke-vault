@@ -1,0 +1,123 @@
+---
+{{ template "vault.mode" . }}
+{{- if ne .mode "external" }}
+{{- if and (ne .mode "") (eq (.Values.global.enabled | toString) "true") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-{{ template "vault.fullname" . }}-0
+  namespace: {{ .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ include "vault.chart" . }}
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    component: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.server.dataStorage.size }}
+  claimRef:
+    kind: PersistentVolumeClaim
+    name: data-{{ template "vault.fullname" . }}-0
+    namespace: {{ .Release.Namespace }}
+  gcePersistentDisk:
+    fsType: ext4
+    pdName: data-{{ template "vault.fullname" . }}-0
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.kubernetes.io/zone
+          operator: In
+          values:
+          - {{ .Values.global.googleRegion }}-a
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.server.dataStorage.storageClass | default "standard" }}
+  volumeMode: Filesystem
+{{ end }}
+{{ end }}
+
+---
+{{ template "vault.mode" . }}
+{{- if ne .mode "external" }}
+{{- if and (ne .mode "") (eq (.Values.global.enabled | toString) "true") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-{{ template "vault.fullname" . }}-1
+  namespace: {{ .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ include "vault.chart" . }}
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    component: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.server.dataStorage.size }}
+  claimRef:
+    kind: PersistentVolumeClaim
+    name: data-{{ template "vault.fullname" . }}-1
+    namespace: {{ .Release.Namespace }}
+  gcePersistentDisk:
+    fsType: ext4
+    pdName: data-{{ template "vault.fullname" . }}-1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.kubernetes.io/zone
+          operator: In
+          values:
+          - {{ .Values.global.googleRegion }}-b
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.server.dataStorage.storageClass | default "standard" }}
+  volumeMode: Filesystem
+{{ end }}
+{{ end }}
+
+---
+{{ template "vault.mode" . }}
+{{- if ne .mode "external" }}
+{{- if and (ne .mode "") (eq (.Values.global.enabled | toString) "true") }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-{{ template "vault.fullname" . }}-2
+  namespace: {{ .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ include "vault.chart" . }}
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    component: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: {{ .Values.server.dataStorage.size }}
+  claimRef:
+    kind: PersistentVolumeClaim
+    name: data-{{ template "vault.fullname" . }}-2
+    namespace: {{ .Release.Namespace }}
+  gcePersistentDisk:
+    fsType: ext4
+    pdName: data-{{ template "vault.fullname" . }}-2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.kubernetes.io/zone
+          operator: In
+          values:
+          - {{ .Values.global.googleRegion }}-c
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.server.dataStorage.storageClass | default "standard" }}
+  volumeMode: Filesystem
+{{ end }}
+{{ end }}
+---

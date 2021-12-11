@@ -1,0 +1,81 @@
+---
+{{ template "vault.mode" . }}
+{{- if ne .mode "external" }}
+{{- if and (ne .mode "") (eq (.Values.global.enabled | toString) "true") }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-{{ template "vault.fullname" . }}-0
+  namespace: {{ .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ include "vault.chart" . }}
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    component: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.server.dataStorage.size }}
+  storageClassName: {{ .Values.server.dataStorage.storageClass | default "standard" }}
+  volumeName: data-{{ template "vault.fullname" . }}-0
+  volumeMode: Filesystem
+{{ end }}
+{{ end }}
+
+---
+{{ template "vault.mode" . }}
+{{- if ne .mode "external" }}
+{{- if and (ne .mode "") (eq (.Values.global.enabled | toString) "true") }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-{{ template "vault.fullname" . }}-1
+  namespace: {{ .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ include "vault.chart" . }}
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    component: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.server.dataStorage.size }}
+  storageClassName: {{ .Values.server.dataStorage.storageClass | default "standard" }}
+  volumeName: data-{{ template "vault.fullname" . }}-1
+  volumeMode: Filesystem
+{{ end }}
+{{ end }}
+
+---
+{{ template "vault.mode" . }}
+{{- if ne .mode "external" }}
+{{- if and (ne .mode "") (eq (.Values.global.enabled | toString) "true") }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-{{ template "vault.fullname" . }}-2
+  namespace: {{ .Release.Namespace }}
+  labels:
+    helm.sh/chart: {{ include "vault.chart" . }}
+    app.kubernetes.io/name: {{ include "vault.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    component: server
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.server.dataStorage.size }}
+  storageClassName: {{ .Values.server.dataStorage.storageClass | default "standard" }}
+  volumeName: data-{{ template "vault.fullname" . }}-2
+  volumeMode: Filesystem
+{{ end }}
+{{ end }}
+

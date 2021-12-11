@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+#
+# Vault Terraform state file is encrypted with Customer Managed Key (CMK)
+# Generate CMK:
+# > openssl rand -base64 -out cmk.key 32
+# > gcloud secrets versions add --data-file cmk.key vault_dns_name-terraform-state-key
+#
+
+# shellcheck disable=SC1091
+# shellcheck disable=SC2086
+
+source "scripts/lib-functions.sh"
+
+_usage() {
+  echo -e "\n Usage: $(basename ${0})"
+  echo -e "\t -p <google_project>   - GCP Project ID (required)"
+  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -a                    - Apply Terraform scripts (optional)"
+  echo -e "\t -l                    - Show Terraform state (optional)"
+  echo -e "\n Example:"
+  echo -e "\n Terraform plan:\n\t $(basename $0) -p <google_project> -d <vault_dns_name>"
+  echo -e "\n Terraform apply:\n\t $(basename $0) -p <google_project> -d <vault_dns_name> -a"
+  echo -e "\n Terraform show:\n\t $(basename $0) -p <google_project> -d <vault_dns_name> -l"
+  exit 1
+}
+
+while getopts "d:p:al" option; do
+  case ${option} in
+  d)
+    vault_dns_name=${OPTARG}
+    ;;
+  p)
+    google_project=${OPTARG}
+    ;;
+  a)
+    terraform="apply"
+    ;;
+  l)
+    terraform="show"
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+done
+
+if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
+  _usage
+fi
+
+_validate_google_project_name ${google_project}
+_get_terraform_output_file ${google_project}
+_validate_vault_dns_name ${vault_dns_name}
+
+vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
+
+VAULT_ADDR="https://${vault_ip_address:?}:8200"
+
+secret_version=$(gcloud secrets versions list "${vault_dns_name}-vault-key" --sort-by=name --limit=1 --format="value(name)")
+VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-key" "${secret_version:?}" | jq -r ".root_token")
+
+secret_version=$(gcloud secrets versions list "${vault_dns_name}-terraform-state-key" --sort-by=name --limit=1 --format="value(name)")
+terraform_state_encryption_key=$(gcloud secrets versions access --secret="${vault_dns_name}-terraform-state-key" "${secret_version:?}")
+
+export TF_VAR_vault_dns_name=${vault_dns_name}
+export GOOGLE_PROJECT=${google_project}
+export VAULT_CLIENT_TIMEOUT="3"
+export VAULT_ADDR
+export VAULT_TOKEN
+
+cd terraform/vault || exit
+
+_validate_terraform_fmt
+
+terraform init -upgrade -input=false -reconfigure \
+  -backend-config="bucket=terraform-${google_project}" \
+  -backend-config="prefix=terraform-state/gcp/vault/${vault_dns_name}" \
+  -backend-config="encryption_key=${terraform_state_encryption_key:?}"
+
+terraform validate
+
+_connect_gke_proxy
+
+until vault operator raft list-peers >/dev/null; do
+  i=$((i + 1))
+  if ((i > 10)); then
+    echo -e "\nCannot access Vault.\n"
+    exit 1
+  fi
+done
+
+if [[ ${terraform} == "apply" ]]; then
+
+  terraform apply -auto-approve -input=false -refresh=true
+  terraform output -json -no-color >output.json
+  _disconnect_gke_proxy
+  gsutil cp "file://output.json" "gs://terraform-${google_project}/terraform-state/gcp/vault/${vault_dns_name}"
+
+elif [[ ${terraform} == "show" ]]; then
+  terraform show
+else
+  terraform plan -input=false -refresh=true
+fi

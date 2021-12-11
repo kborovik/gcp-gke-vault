@@ -1,0 +1,63 @@
+---
+timeout: 900s
+
+options:
+  env:
+    - "GOOGLE_PROJECT=${PROJECT_ID}"
+    - "IS_CLOUD_BUILD=${BUILD_ID}"
+  pool:
+    name: "projects/${PROJECT_ID}/locations/us-central1/workerPools/us-central1-main "
+
+steps:
+  # Deploy Terraform code
+  - id: "terraform_apply"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    entrypoint: "bash"
+    waitFor:
+      - "-"
+    args:
+      - "-c"
+      - "./scripts/gcp-deploy.sh -p ${PROJECT_ID} -a"
+
+  # Deploy HashiCorp Vault (vault1)
+  - id: "vault_deploy"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    entrypoint: "bash"
+    waitFor:
+      - "terraform_apply"
+    args:
+      - "-c"
+      - "./scripts/vault-deploy.sh -p ${PROJECT_ID} -d vault1"
+
+  # Setup HashiCorp Vault (vault1)
+  - id: "vault_setup"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    entrypoint: "bash"
+    waitFor:
+      - "vault_deploy"
+    args:
+      - "-c"
+      - "./scripts/vault-setup.sh -p ${PROJECT_ID} -d vault1 -a"
+
+  # Test HashiCorp Vault (vault1)
+  - id: "vault_test_gke"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    entrypoint: "bash"
+    waitFor:
+      - "vault_setup"
+    args:
+      - "-c"
+      - "./scripts/vault-test-gke.sh -p ${PROJECT_ID} -d vault1"
+
+  # Test HashiCorp Vault (vault1)
+  - id: "vault_test_approle"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    entrypoint: "bash"
+    waitFor:
+      - "vault_test_gke"
+    args:
+      - "-c"
+      - |
+        for approle in "test1" "test2"; do
+          ./scripts/vault-test-approle.sh -p ${PROJECT_ID} -d vault1 -r ${approle}
+        done
