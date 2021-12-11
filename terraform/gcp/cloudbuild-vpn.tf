@@ -53,7 +53,7 @@ resource "google_compute_instance" "openvpn" {
 
   metadata = {
     "ssh-keys" = join("\n", [for key in var.ssh_keys : "${key.user}:${key.pubkey}"])
-    "user-data" = templatefile("cloud-init/bastion.sh",
+    "user-data" = templatefile("cloud-init/openvpn.sh",
       {
         root_ca_crt = google_privateca_certificate_authority.main[0].access_urls[0].ca_certificate_access_url
       }

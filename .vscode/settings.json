@@ -43,6 +43,7 @@
     "SITEPACKAGES",
     "statefulsets",
     "subnetworks",
+    "templatefile",
     "tfvars",
     "toset"
   ]
