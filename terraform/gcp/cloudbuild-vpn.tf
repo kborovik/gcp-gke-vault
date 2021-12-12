@@ -38,7 +38,7 @@ resource "google_compute_instance" "openvpn" {
   desired_status            = "RUNNING"
   deletion_protection       = false
   can_ip_forward            = false
-  zone                      = data.google_compute_zones.available.names[count.index % length(data.google_compute_zones.available.names)]
+  zone                      = "${var.region}-a"
   allow_stopping_for_update = true
 
   tags = [

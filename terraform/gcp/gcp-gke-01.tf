@@ -19,6 +19,12 @@ resource "google_container_cluster" "gke_01" {
   enable_intranode_visibility = true
   # datapath_provider           = "ADVANCED_DATAPATH"
 
+  node_locations = [
+    "${var.region}-a",
+    "${var.region}-b",
+    "${var.region}-c",
+  ]
+
   release_channel {
     channel = "REGULAR"
   }
