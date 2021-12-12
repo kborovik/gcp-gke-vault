@@ -7,7 +7,7 @@ options:
 
 steps:
   - id: "terraform_suspend"
-    name: "us-west2-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
     waitFor:
       - "-"
