@@ -37,7 +37,7 @@ steps:
       - "vault_deploy"
     args:
       - "-c"
-      - "./scripts/vault-setup.sh -p ${PROJECT_ID} -d vault1 -a"
+      - "./scripts/vault-config.sh -p ${PROJECT_ID} -d vault1 -a"
 
   # Test HashiCorp Vault (vault1)
   - id: "vault_test_gke"
