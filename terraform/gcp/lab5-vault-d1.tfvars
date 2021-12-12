@@ -31,6 +31,6 @@ root_ca_tls_subject = {
 }
 
 # Cloud Build
-enable_cloudbuild_pull_request = false
-enable_cloudbuild_push         = false
+enable_cloudbuild_pull_request = true
+enable_cloudbuild_push         = true
 enable_cloudbuild_tag          = false
