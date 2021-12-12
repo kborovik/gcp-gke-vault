@@ -6,7 +6,7 @@ options:
     - "GOOGLE_PROJECT=${PROJECT_ID}"
     - "IS_CLOUD_BUILD=${BUILD_ID}"
   pool:
-    name: "projects/${PROJECT_ID}/locations/us-central1/workerPools/us-central1-main "
+    name: "projects/${PROJECT_ID}/locations/us-central1/workerPools/us-central1-main"
 
 steps:
   # Deploy Terraform code
@@ -37,7 +37,7 @@ steps:
       - "vault_deploy"
     args:
       - "-c"
-      - "./scripts/vault-setup.sh -p ${PROJECT_ID} -d vault1 -a"
+      - "./scripts/vault-config.sh -p ${PROJECT_ID} -d vault1 -a"
 
   # Test HashiCorp Vault (vault1)
   - id: "vault_test_gke"

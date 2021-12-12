@@ -6,7 +6,7 @@ Create data disk for Vault GKE deployment and attach daily snapshot policy
 
 */
 locals {
-  zone_count = length(data.google_compute_zones.available.names)
+  zone_count = 3
 }
 
 resource "google_compute_disk" "vault_data_0" {
@@ -17,7 +17,7 @@ resource "google_compute_disk" "vault_data_0" {
   size  = 10
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
     ignore_changes = [
       snapshot
     ]

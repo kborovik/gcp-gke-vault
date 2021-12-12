@@ -5,15 +5,15 @@ Pull-Request based Cloudbuild pipeline
 */
 resource "google_cloudbuild_trigger" "pull_request" {
   count       = var.enable_cloudbuild_pull_request == true ? 1 : 0
-  name        = "pull-request"
+  name        = "cloudbuild-pr"
   description = "Invokes a build for every pull request commit push"
   filename    = "cloudbuild/cloudbuild.yaml"
 
   included_files = [
-    "terraform/**",
     "cloudbuild/**",
+    "kubernetes/**",
     "scripts/**",
-    "vault/**"
+    "terraform/**",
   ]
 
   github {
@@ -33,7 +33,7 @@ Main branch Merge based Cloudbuild pipeline
 */
 resource "google_cloudbuild_trigger" "push" {
   count       = var.enable_cloudbuild_push == true ? 1 : 0
-  name        = "push"
+  name        = "cloudbuild-merge"
   description = "Invokes a build for every Git commit push"
   filename    = "cloudbuild/cloudbuild.yaml"
 
@@ -54,7 +54,7 @@ Tag based Cloudbuild pipeline
 */
 resource "google_cloudbuild_trigger" "tag" {
   count       = var.enable_cloudbuild_tag == true ? 1 : 0
-  name        = "tag"
+  name        = "cloudbuild-tag"
   description = "Invokes a build for every Git tag push"
   filename    = "cloudbuild/cloudbuild.yaml"
 

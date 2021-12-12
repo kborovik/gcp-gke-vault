@@ -31,7 +31,7 @@ resource "google_compute_instance" "instance_gke_proxy" {
   desired_status            = "RUNNING"
   deletion_protection       = false
   can_ip_forward            = false
-  zone                      = data.google_compute_zones.available.names[count.index % length(data.google_compute_zones.available.names)]
+  zone                      = "${var.region}-a"
   allow_stopping_for_update = true
 
   tags = [
@@ -47,7 +47,7 @@ resource "google_compute_instance" "instance_gke_proxy" {
   metadata = {
     "ssh-keys"     = join("\n", [for key in var.ssh_keys : "${key.user}:${key.pubkey}"])
     "vmdnssetting" = "ZonalPreferred"
-    "user-data" = templatefile("cloud-init/gke-cluster-proxy.sh",
+    "user-data" = templatefile("cloud-init/gke-proxy.sh",
       {
         root_ca_crt = google_privateca_certificate_authority.main[0].access_urls[0].ca_certificate_access_url
       }
