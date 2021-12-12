@@ -10,10 +10,10 @@ resource "google_cloudbuild_trigger" "pull_request" {
   filename    = "cloudbuild/cloudbuild.yaml"
 
   included_files = [
-    "terraform/**",
     "cloudbuild/**",
+    "kubernetes/**",
     "scripts/**",
-    "vault/**"
+    "terraform/**",
   ]
 
   github {
