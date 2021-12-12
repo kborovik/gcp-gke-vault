@@ -5,7 +5,7 @@ Pull-Request based Cloudbuild pipeline
 */
 resource "google_cloudbuild_trigger" "pull_request" {
   count       = var.enable_cloudbuild_pull_request == true ? 1 : 0
-  name        = "CloudBuild PR Deploy"
+  name        = "cloudbuild-pr"
   description = "Invokes a build for every pull request commit push"
   filename    = "cloudbuild/cloudbuild.yaml"
 
@@ -33,7 +33,7 @@ Main branch Merge based Cloudbuild pipeline
 */
 resource "google_cloudbuild_trigger" "push" {
   count       = var.enable_cloudbuild_push == true ? 1 : 0
-  name        = "CloudBuild Main Deploy"
+  name        = "cloudbuild-merge"
   description = "Invokes a build for every Git commit push"
   filename    = "cloudbuild/cloudbuild.yaml"
 
@@ -54,7 +54,7 @@ Tag based Cloudbuild pipeline
 */
 resource "google_cloudbuild_trigger" "tag" {
   count       = var.enable_cloudbuild_tag == true ? 1 : 0
-  name        = "CloudBuild Tag Deploy"
+  name        = "cloudbuild-tag"
   description = "Invokes a build for every Git tag push"
   filename    = "cloudbuild/cloudbuild.yaml"
 
