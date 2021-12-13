@@ -54,6 +54,16 @@ secret_id=$(gcloud secrets versions access --secret="${google_secret_name:?}" "$
 
 _connect_gke_proxy
 
+until vault status &>/dev/null; do
+  echo -e "Waiting for GKE LB to sync..."
+  sleep 3
+  i=$((i + 1))
+  if ((i > 5)); then
+    echo -e "\n### ERROR: GKE LB is not ready in 15 seconds.\n"
+    exit 1
+  fi
+done
+
 VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} -format=json | jq -r ".auth.client_token // empty")
 export VAULT_TOKEN
 export VAULT_CLIENT_TIMEOUT="5"
