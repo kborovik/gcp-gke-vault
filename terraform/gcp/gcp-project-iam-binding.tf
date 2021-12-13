@@ -107,3 +107,17 @@ resource "google_project_iam_binding" "container_service_agent" {
     "serviceAccount:service-${local.project_number}@container-engine-robot.iam.gserviceaccount.com",
   ]
 }
+
+/*
+
+Service Account Admin
+
+*/
+resource "google_project_iam_binding" "service_account_admin" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountAdmin"
+
+  members = [
+    "serviceAccount:${local.project_number}@cloudbuild.gserviceaccount.com",
+  ]
+}
