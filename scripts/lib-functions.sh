@@ -7,7 +7,7 @@ set -o errexit
 
 export PS4='+(${BASH_SOURCE}:${LINENO}):[$?] ${FUNCNAME[0]:+${FUNCNAME[0]}[$?]: }'
 export terraform_gcp_output="${HOME}/terraform-gcp-output.json"
-export vault_output_file="${HOME}/terraform-vault-output.json"
+export terraform_vault_output="${HOME}/terraform-vault-output.json"
 export cloudbuild_ssh_key="${HOME}/cloudbuild-ssh.key"
 
 _print_header() {
@@ -49,7 +49,7 @@ _validate_vault_approle_name() {
     echo -e "Usage: ${FUNCNAME[0]} <vault_approle_names>"
     exit 1
   fi
-  mapfile -t -d ' ' available_vault_approle_names < <(jq -r ".approle.value[].role_name // empty" ${vault_output_file:?} | tr '\n' ' ')
+  mapfile -t -d ' ' available_vault_approle_names < <(jq -r ".approle.value[].role_name // empty" ${terraform_vault_output:?} | tr '\n' ' ')
   if [ "${1}" == "$(compgen -W "${available_vault_approle_names[*]:?}" "${1}" | head -1)" ]; then
     return 0
   else
@@ -76,14 +76,14 @@ _get_terraform_gcp_output() {
   fi
 }
 
-_get_vault_output_file() {
+_get_terraform_vault_output() {
   if [[ -z ${1} || -z ${2} ]]; then
     echo -e "Usage: ${FUNCNAME[0]} <google_project> <vault_dns_name>"
     exit 1
   fi
   local google_project=${1}
   local vault_dns_name=${2}
-  if ! gsutil cp "gs://terraform-${google_project}/terraform-state/gcp/vault/${vault_dns_name}/output.json" "${vault_output_file}" &>/dev/null; then
+  if ! gsutil cp "gs://terraform-${google_project}/terraform-state/gcp/vault/${vault_dns_name}/output.json" "${terraform_vault_output}" &>/dev/null; then
     echo -e "\nUnable to copy gs://terraform-${google_project}/terraform-state/gcp/vault/${vault_dns_name}/output.json to local disk.\n"
   fi
 }
@@ -128,8 +128,8 @@ _remove_temp_files() {
   if [[ -f ${terraform_gcp_output} ]]; then
     rm -f ${terraform_gcp_output}
   fi
-  if [[ -f ${vault_output_file} ]]; then
-    rm -f ${vault_output_file}
+  if [[ -f ${terraform_vault_output} ]]; then
+    rm -f ${terraform_vault_output}
   fi
   if [[ -f "${cloudbuild_ssh_key}" ]]; then
     rm -rf "${cloudbuild_ssh_key}"

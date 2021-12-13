@@ -40,15 +40,15 @@ _validate_google_project_name ${google_project}
 _get_terraform_gcp_output ${google_project}
 
 _validate_vault_dns_name ${vault_dns_name}
-_get_vault_output_file ${google_project} ${vault_dns_name}
+_get_terraform_vault_output ${google_project} ${vault_dns_name}
 
 _validate_vault_approle_name ${approle_name}
 
 domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
 export VAULT_ADDR="https://${vault_dns_name}.${domain_name:?}:8200"
 
-role_id=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .role_id // empty" ${vault_output_file:?})
-google_secret_name=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .google_secret_name // empty" ${vault_output_file:?})
+role_id=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .role_id // empty" ${terraform_vault_output:?})
+google_secret_name=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .google_secret_name // empty" ${terraform_vault_output:?})
 secret_version=$(gcloud secrets versions list "${google_secret_name:?}" --sort-by=name --limit=1 --format="value(name)")
 secret_id=$(gcloud secrets versions access --secret="${google_secret_name:?}" "${secret_version:?}")
 
