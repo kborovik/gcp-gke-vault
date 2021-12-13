@@ -44,8 +44,9 @@ _get_vault_output_file ${google_project} ${vault_dns_name}
 
 _validate_vault_approle_name ${approle_name}
 
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
-export VAULT_ADDR="https://${vault_ip_address:?}:8200"
+domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_output_file:?} | sed 's/.$//')
+fqdn="${vault_dns_name}.${domain_name:?}"
+export VAULT_ADDR="https://${fqdn}:8200"
 
 role_id=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .role_id // empty" ${vault_output_file:?})
 google_secret_name=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .google_secret_name // empty" ${vault_output_file:?})
