@@ -50,12 +50,12 @@ if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
 
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
-
-VAULT_ADDR="https://${vault_ip_address:?}:8200"
+domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
+fqdn="${vault_dns_name}.${domain_name:?}"
+export VAULT_ADDR="https://${fqdn}:8200"
 
 secret_version=$(gcloud secrets versions list "${vault_dns_name}-vault-key" --sort-by=name --limit=1 --format="value(name)")
 VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-key" "${secret_version:?}" | jq -r ".root_token")

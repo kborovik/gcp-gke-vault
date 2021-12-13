@@ -61,15 +61,22 @@ terraform init -upgrade -input=false -reconfigure \
 
 terraform validate
 
+google_project_config="${google_project}.tfvars"
+
+if [[ ! -f ${google_project_config} ]]; then
+  echo -e "### ERROR: Google project ${google_project} config file ${google_project_config} not found"
+  exit 1
+fi
+
 if [[ ${terraform} == "apply" ]]; then
 
-  terraform apply -auto-approve -var-file="${google_project}.tfvars" -input=false -refresh=true
+  terraform apply -auto-approve -var-file="${google_project_config}" -input=false -refresh=true
   terraform output -json -no-color >output.json
   gsutil cp "file://output.json" "gs://terraform-${google_project}/terraform-state/gcp/"
 
 elif [[ ${terraform} == "destroy" ]]; then
 
-  terraform plan -destroy -var-file="${google_project}.tfvars" -out tfplan.bin
+  terraform plan -destroy -var-file="${google_project_config}" -out tfplan.bin
   read -r -N 1 -p "Destroy Terraform deployment? Y/N: " destroy
   if [[ "${destroy}" =~ [Yy] ]]; then
     terraform apply -destroy -input=false tfplan.bin
@@ -83,7 +90,7 @@ elif [[ ${terraform} == "suspend" ]]; then
   done
 
   for gcp_cluster in $(terraform state list | grep google_container_cluster); do
-    terraform plan -destroy -var-file="${google_project}.tfvars" -compact-warnings -out tfplan.bin -target="${gcp_cluster}"
+    terraform plan -destroy -var-file="${google_project_config}" -compact-warnings -out tfplan.bin -target="${gcp_cluster}"
     terraform apply -destroy tfplan.bin
     rm -rf tfplan.bin
   done
@@ -91,5 +98,5 @@ elif [[ ${terraform} == "suspend" ]]; then
 elif [[ ${terraform} == "show" ]]; then
   terraform show
 else
-  terraform plan -var-file="${google_project}.tfvars" -input=false -refresh=true
+  terraform plan -var-file="${google_project_config}" -input=false -refresh=true
 fi

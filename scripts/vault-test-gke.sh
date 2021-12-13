@@ -5,6 +5,8 @@
 
 source "scripts/lib-functions.sh"
 
+# Functions
+
 _usage() {
   echo -e "\n Usage: $(basename $0)"
   echo -e "\t -p <google_project>   - GCP Project ID (required)"
@@ -13,37 +15,6 @@ _usage() {
   echo -e "\t $(basename $0) -p <google_project> -d <vault_dns_name>"
   exit 1
 }
-
-while getopts "d:p:" option; do
-  case ${option} in
-  d)
-    vault_dns_name=${OPTARG}
-    ;;
-  p)
-    google_project=${OPTARG}
-    ;;
-  *)
-    _usage
-    ;;
-  esac
-done
-
-if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
-  _usage
-fi
-
-_validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
-_validate_vault_dns_name ${vault_dns_name}
-
-domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_output_file:?} | sed 's/.$//')
-fqdn="${vault_dns_name}.${domain_name:?}"
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
-
-vault_secret="kv/test1"
-uuid_put="$(uuidgen)"
-uuid_get=""
-date="$(date)"
 
 _test_put_eq_get() {
   uuid_get=$(vault kv get -field=uuid "${vault_secret}")
@@ -106,21 +77,53 @@ _restart_active_pods() {
   done
 }
 
+# Main script
+
+while getopts "d:p:" option; do
+  case ${option} in
+  d)
+    vault_dns_name=${OPTARG}
+    ;;
+  p)
+    google_project=${OPTARG}
+    ;;
+  *)
+    _usage
+    ;;
+  esac
+done
+
+if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
+  _usage
+fi
+
+_validate_google_project_name ${google_project}
+_get_terraform_gcp_output ${google_project}
+_validate_vault_dns_name ${vault_dns_name}
+
+vault_secret="kv/test1"
+uuid_put="$(uuidgen)"
+uuid_get=""
+date="$(date)"
+
+vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_gcp_output:?})
+domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
+
 secret_version=$(gcloud secrets versions list "${vault_dns_name}-vault-key" --sort-by=name --limit=1 --format="value(name)")
 VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-key" "${secret_version:?}" | jq -r ".root_token")
 
 export VAULT_TOKEN
-export VAULT_ADDR="https://${fqdn}:8200"
+export VAULT_ADDR="https://${vault_ip_address:?}:8200"
 export VAULT_CLIENT_TIMEOUT="3"
 
 _connect_gke_proxy
 
-_print_header "Testing FQDN access: VAULT_ADDR=https://${fqdn}:8200"
+_print_header "Testing IP_ADDRESS access: VAULT_ADDR=https://${vault_ip_address}:8200"
 vault status
 
-export VAULT_ADDR="https://${vault_ip_address:?}:8200"
+export VAULT_ADDR="https://${vault_dns_name}.${domain_name:?}:8200"
 
-_print_header "Testing IP_ADDRESS access: VAULT_ADDR=https://${vault_ip_address}:8200"
+_print_header "Testing FQDN access: VAULT_ADDR=https://${vault_dns_name}.${domain_name:?}:8200"
 vault status
 
 _print_header "Write ${uuid_put} to Vault secret ${vault_secret}"

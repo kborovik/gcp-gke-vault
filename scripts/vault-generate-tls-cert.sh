@@ -49,13 +49,13 @@ if [[ -z ${vault_dns_name} || -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
 
-google_region="$(jq -r ".google_region.value // empty" ${terraform_output_file:?})"
-dns_domain=$(jq -r ".dns_zone.value // empty" ${terraform_output_file:?} | sed 's/.$//')
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
-gcp_ca_pool="$(jq -r ".ca_pool_name.value // empty" ${terraform_output_file:?})"
+google_region="$(jq -r ".google_region.value // empty" ${terraform_gcp_output:?})"
+dns_domain=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
+vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_gcp_output:?})
+gcp_ca_pool="$(jq -r ".ca_pool_name.value // empty" ${terraform_gcp_output:?})"
 tls_key="${HOME}/${vault_dns_name}.key"
 tls_crt="${HOME}/${vault_dns_name}.crt"
 

@@ -1,5 +1,5 @@
 ---
-timeout: 900s
+timeout: 2700s
 
 options:
   env:

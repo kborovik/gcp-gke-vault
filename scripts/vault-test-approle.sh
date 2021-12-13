@@ -37,22 +37,32 @@ if [[ -z "${vault_dns_name}" || -z ${google_project} || -z ${approle_name} ]]; t
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 
 _validate_vault_dns_name ${vault_dns_name}
-_get_vault_output_file ${google_project} ${vault_dns_name}
+_get_terraform_vault_output ${google_project} ${vault_dns_name}
 
 _validate_vault_approle_name ${approle_name}
 
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
-export VAULT_ADDR="https://${vault_ip_address:?}:8200"
+domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
+export VAULT_ADDR="https://${vault_dns_name}.${domain_name:?}:8200"
 
-role_id=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .role_id // empty" ${vault_output_file:?})
-google_secret_name=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .google_secret_name // empty" ${vault_output_file:?})
+role_id=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .role_id // empty" ${terraform_vault_output:?})
+google_secret_name=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .google_secret_name // empty" ${terraform_vault_output:?})
 secret_version=$(gcloud secrets versions list "${google_secret_name:?}" --sort-by=name --limit=1 --format="value(name)")
 secret_id=$(gcloud secrets versions access --secret="${google_secret_name:?}" "${secret_version:?}")
 
 _connect_gke_proxy
+
+until vault status &>/dev/null; do
+  echo -e "Waiting for GKE LB to sync..."
+  sleep 3
+  i=$((i + 1))
+  if ((i > 5)); then
+    echo -e "\n### ERROR: GKE LB is not ready in 15 seconds.\n"
+    exit 1
+  fi
+done
 
 VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} -format=json | jq -r ".auth.client_token // empty")
 export VAULT_TOKEN
