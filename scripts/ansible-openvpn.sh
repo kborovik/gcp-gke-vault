@@ -48,13 +48,13 @@ if [[ -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 
 export ANSIBLE_HOST_KEY_CHECKING=false
 
 ansible_gcp_inventory="${HOME}/hosts-${google_project}.yaml"
 ansible_ssh_key="${HOME}/ansible-cloudbuild-ssh.key"
-ansible_openvpn_hostname=$(jq -r ".external_ip_vpn.value // empty" "${terraform_output_file:?}")
+ansible_openvpn_hostname=$(jq -r ".external_ip_vpn.value // empty" "${terraform_gcp_output:?}")
 
 # create Ansible inventory for specific gcp_project_id
 sed -e "s/ANSIBLE_OPENVPN_HOSTNAME/${ansible_openvpn_hostname:?}/g" "ansible/inventory/hosts.yaml" >"${ansible_gcp_inventory}"

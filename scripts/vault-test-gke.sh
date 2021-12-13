@@ -98,7 +98,7 @@ if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
 
 vault_secret="kv/test1"
@@ -106,8 +106,8 @@ uuid_put="$(uuidgen)"
 uuid_get=""
 date="$(date)"
 
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file:?})
-domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_output_file:?} | sed 's/.$//')
+vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_gcp_output:?})
+domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
 
 secret_version=$(gcloud secrets versions list "${vault_dns_name}-vault-key" --sort-by=name --limit=1 --format="value(name)")
 VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-key" "${secret_version:?}" | jq -r ".root_token")

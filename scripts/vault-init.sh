@@ -55,13 +55,13 @@ if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
 
 vault_cluster_keys="${HOME}/vault-cluster-keys.json"
 vault_secret=$(gcloud secrets list --format="value(name)" --filter="${vault_dns_name}-vault-key")
-google_region="$(jq -r ".google_region.value // empty" ${terraform_output_file:?})"
-google_gke_name=${google_gke_name:-$(jq -r ".gke_names.value[0] // empty" ${terraform_output_file:?})}
+google_region="$(jq -r ".google_region.value // empty" ${terraform_gcp_output:?})"
+google_gke_name=${google_gke_name:-$(jq -r ".gke_names.value[0] // empty" ${terraform_gcp_output:?})}
 
 gcloud container clusters get-credentials "${google_gke_name:?}" --region="${google_region:?}"
 

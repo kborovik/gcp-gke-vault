@@ -6,7 +6,7 @@
 set -o errexit
 
 export PS4='+(${BASH_SOURCE}:${LINENO}):[$?] ${FUNCNAME[0]:+${FUNCNAME[0]}[$?]: }'
-export terraform_output_file="${HOME}/terraform-gcp-output.json"
+export terraform_gcp_output="${HOME}/terraform-gcp-output.json"
 export vault_output_file="${HOME}/terraform-vault-output.json"
 export cloudbuild_ssh_key="${HOME}/cloudbuild-ssh.key"
 
@@ -35,7 +35,7 @@ _validate_vault_dns_name() {
     echo -e "Usage: ${FUNCNAME[0]} <vault_dns_names>"
     exit 1
   fi
-  mapfile -t -d ' ' available_vault_dns_names < <(jq -r ".vault_dns_records.value[] | .name // empty" ${terraform_output_file:?} | tr '\n' ' ')
+  mapfile -t -d ' ' available_vault_dns_names < <(jq -r ".vault_dns_records.value[] | .name // empty" ${terraform_gcp_output:?} | tr '\n' ' ')
   if [ "${1}" == "$(compgen -W "${available_vault_dns_names[*]}" "${1}" | head -1)" ]; then
     return 0
   else
@@ -65,13 +65,13 @@ _validate_terraform_fmt() {
   fi
 }
 
-_get_terraform_output_file() {
+_get_terraform_gcp_output() {
   if [[ -z ${1} ]]; then
     echo -e "Usage: ${FUNCNAME[0]} <google_project>"
     exit 1
   fi
   local google_project=${1}
-  if ! gsutil cp "gs://terraform-${google_project}/terraform-state/gcp/output.json" ${terraform_output_file} &>/dev/null; then
+  if ! gsutil cp "gs://terraform-${google_project}/terraform-state/gcp/output.json" ${terraform_gcp_output} &>/dev/null; then
     echo -e "\nUnable to copy gs://terraform-${google_project}/terraform-state/gcp/output.json to local disk.\n"
   fi
 }
@@ -100,7 +100,7 @@ _connect_gke_proxy() {
   local ssh_key_version
   local gke_proxy_ip_address
 
-  gke_proxy_ip_address=$(jq -r ".internal_ip_gke_proxy.value // empty" ${terraform_output_file})
+  gke_proxy_ip_address=$(jq -r ".internal_ip_gke_proxy.value // empty" ${terraform_gcp_output})
 
   ssh_key_version=$(gcloud secrets versions list "cloudbuild-ssh-key" --sort-by=name --limit=1 --format="value(name)")
   gcloud secrets versions access --secret="cloudbuild-ssh-key" "${ssh_key_version:?}" >"${cloudbuild_ssh_key}"
@@ -125,8 +125,8 @@ _disconnect_gke_proxy() {
 }
 
 _remove_temp_files() {
-  if [[ -f ${terraform_output_file} ]]; then
-    rm -f ${terraform_output_file}
+  if [[ -f ${terraform_gcp_output} ]]; then
+    rm -f ${terraform_gcp_output}
   fi
   if [[ -f ${vault_output_file} ]]; then
     rm -f ${vault_output_file}

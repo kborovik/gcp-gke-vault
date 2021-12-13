@@ -29,10 +29,10 @@ if [[ -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 
-google_region=$(jq -r ".google_region.value // empty" "${terraform_output_file:?}")
-root_ca_certificate_url=$(jq -r ".root_ca_certificate_url.value // empty" "${terraform_output_file:?}")
+google_region=$(jq -r ".google_region.value // empty" "${terraform_gcp_output:?}")
+root_ca_certificate_url=$(jq -r ".root_ca_certificate_url.value // empty" "${terraform_gcp_output:?}")
 docker_tag="${google_region:?}-docker.pkg.dev/${google_project}/containers/gcp-deployment"
 revision="$(date -I)"
 

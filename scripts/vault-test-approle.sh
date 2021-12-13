@@ -37,14 +37,14 @@ if [[ -z "${vault_dns_name}" || -z ${google_project} || -z ${approle_name} ]]; t
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 
 _validate_vault_dns_name ${vault_dns_name}
 _get_vault_output_file ${google_project} ${vault_dns_name}
 
 _validate_vault_approle_name ${approle_name}
 
-domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_output_file:?} | sed 's/.$//')
+domain_name=$(jq -r ".dns_zone.value // empty" ${terraform_gcp_output:?} | sed 's/.$//')
 export VAULT_ADDR="https://${vault_dns_name}.${domain_name:?}:8200"
 
 role_id=$(jq -r ".approle.value[] | select(.role_name==\"${approle_name}\") .role_id // empty" ${vault_output_file:?})

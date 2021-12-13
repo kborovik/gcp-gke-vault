@@ -41,15 +41,15 @@ if [[ -z "${vault_dns_name}" || -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
-_get_terraform_output_file ${google_project}
+_get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
 
 vault_version="1.8.5"
-vault_service_account=$(jq -r ".vault_service_account.value // empty" ${terraform_output_file:?})
-vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_output_file})
+vault_service_account=$(jq -r ".vault_service_account.value // empty" ${terraform_gcp_output:?})
+vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_gcp_output})
 
-google_region="$(jq -r ".google_region.value // empty" ${terraform_output_file:?})"
-google_gke_name=${google_gke_name:-$(jq -r ".gke_names.value[0] // empty" ${terraform_output_file:?})}
+google_region="$(jq -r ".google_region.value // empty" ${terraform_gcp_output:?})"
+google_gke_name=${google_gke_name:-$(jq -r ".gke_names.value[0] // empty" ${terraform_gcp_output:?})}
 google_docker_repo="${google_region:?}-docker.pkg.dev/${google_project}/containers"
 
 gcloud container clusters get-credentials "${google_gke_name:?}" --region="${google_region:?}"
@@ -58,7 +58,7 @@ secret_version=$(gcloud secrets versions list "${vault_dns_name}-tls-crt" --sort
 vault_tls_crt=$(gcloud secrets versions access --secret="${vault_dns_name}-tls-crt" "${secret_version:?}" | base64 --wrap=0)
 secret_version=$(gcloud secrets versions list "${vault_dns_name}-tls-key" --sort-by=name --limit=1 --format="value(name)")
 vault_tls_key=$(gcloud secrets versions access --secret="${vault_dns_name}-tls-key" "${secret_version:?}" | base64 --wrap=0)
-tls_ca=$(jq -r ".root_ca_certificate.value // empty" ${terraform_output_file:?} | base64 --wrap=0)
+tls_ca=$(jq -r ".root_ca_certificate.value // empty" ${terraform_gcp_output:?} | base64 --wrap=0)
 
 _connect_gke_proxy
 
