@@ -123,7 +123,7 @@ vault status
 
 export VAULT_ADDR="https://${vault_dns_name}.${domain_name:?}:8200"
 
-_print_header "Testing FQDN access: VAULT_ADDR=https://${fqdn}:8200"
+_print_header "Testing FQDN access: VAULT_ADDR=https://${vault_dns_name}.${domain_name:?}:8200"
 vault status
 
 _print_header "Write ${uuid_put} to Vault secret ${vault_secret}"
