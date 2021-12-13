@@ -54,12 +54,12 @@ secret_id=$(gcloud secrets versions access --secret="${google_secret_name:?}" "$
 
 _connect_gke_proxy
 
-until vault status &>/dev/null; do
-  echo -e "Waiting for GKE LB to sync..."
+until vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?}; do
+  echo -e "Waiting for Vault to get ready..."
   sleep 3
   i=$((i + 1))
-  if ((i > 5)); then
-    echo -e "\n### ERROR: GKE LB is not ready in 15 seconds.\n"
+  if ((i > 10)); then
+    echo -e "\n### ERROR: Vault is not ready in 30 seconds.\n"
     exit 1
   fi
 done
