@@ -54,7 +54,7 @@ secret_id=$(gcloud secrets versions access --secret="${google_secret_name:?}" "$
 
 _connect_gke_proxy
 
-until vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?}; do
+until vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} &>/dev/null; do
   echo -e "Waiting for Vault to get ready..."
   sleep 3
   i=$((i + 1))
