@@ -85,7 +85,7 @@ elif [[ ${terraform} == "destroy" ]]; then
 
 elif [[ ${terraform} == "suspend" ]]; then
 
-  for gcp_instance in $(gcloud compute instances list --filter='labels.daily_shutdown=yes' --format='value(name)'); do
+  for gcp_instance in $(gcloud compute instances list --filter='labels.daily_shutdown=yes AND status=RUNNING' --format='value(name)'); do
     gcp_zone=$(gcloud compute instances list --filter="${gcp_instance}" --format='value(zone)')
     gcloud compute instances stop "${gcp_instance}" --zone="${gcp_zone:?}"
   done
