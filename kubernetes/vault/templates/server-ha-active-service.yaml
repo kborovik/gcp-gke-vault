@@ -22,6 +22,7 @@ spec:
   loadBalancerIP: {{ .Values.server.serviceActive.loadBalancerIP }}
   {{- end }}
   publishNotReadyAddresses: true
+  externalTrafficPolicy: Local
   ports:
     - name: {{ include "vault.scheme" . }}
       port: {{ .Values.server.service.port }}
