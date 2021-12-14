@@ -124,7 +124,7 @@ resource "google_container_node_pool" "gke_01_pool1" {
 
     shielded_instance_config {
       enable_integrity_monitoring = true
-      enable_secure_boot          = false
+      enable_secure_boot          = true
     }
   }
 }
