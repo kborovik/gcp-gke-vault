@@ -17,7 +17,7 @@ resource "google_container_cluster" "gke_01" {
   min_master_version          = "1.21"
   enable_shielded_nodes       = true
   enable_intranode_visibility = true
-  # datapath_provider           = "ADVANCED_DATAPATH"
+  datapath_provider           = "ADVANCED_DATAPATH"
 
   node_locations = [
     "${var.region}-a",
@@ -33,22 +33,11 @@ resource "google_container_cluster" "gke_01" {
     dns_cache_config {
       enabled = true
     }
-    gce_persistent_disk_csi_driver_config {
-      enabled = true
-    }
-    network_policy_config {
-      disabled = true
-    }
   }
 
   ip_allocation_policy {
     services_secondary_range_name = "services-gke-01"
     cluster_secondary_range_name  = "pods-gke-01"
-  }
-
-  network_policy {
-    enabled  = false
-    provider = "PROVIDER_UNSPECIFIED"
   }
 
   database_encryption {
@@ -58,7 +47,7 @@ resource "google_container_cluster" "gke_01" {
 
   timeouts {
     create = "30m"
-    update = "30m"
+    update = "60m"
     delete = "30m"
   }
 

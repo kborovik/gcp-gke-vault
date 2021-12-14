@@ -38,8 +38,8 @@ resource "google_compute_instance" "openvpn" {
   desired_status            = "RUNNING"
   deletion_protection       = false
   can_ip_forward            = false
-  zone                      = "${var.region}-a"
   allow_stopping_for_update = true
+  zone                      = "${var.region}-a"
 
   tags = [
     var.project_id,
