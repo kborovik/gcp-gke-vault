@@ -72,6 +72,10 @@ resource "google_compute_instance" "instance_gke_proxy" {
     email  = google_service_account.vault_client.email
   }
 
+  shielded_instance_config {
+    enable_secure_boot = true
+  }
+
   resource_policies = [
     google_compute_resource_policy.instance_start_stop.self_link
   ]
