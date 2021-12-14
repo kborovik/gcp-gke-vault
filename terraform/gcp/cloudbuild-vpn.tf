@@ -80,6 +80,10 @@ resource "google_compute_instance" "openvpn" {
     scopes = ["cloud-platform"]
   }
 
+  shielded_instance_config {
+    enable_secure_boot = true
+  }
+
   resource_policies = [
     google_compute_resource_policy.instance_start_stop.self_link
   ]
