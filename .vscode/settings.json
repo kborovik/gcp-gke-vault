@@ -12,6 +12,7 @@
     "cloudscheduler",
     "CLOUDSDK",
     "containeranalysis",
+    "datapath",
     "dnsutils",
     "fortanix",
     "FUNCNAME",

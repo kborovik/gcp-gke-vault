@@ -89,6 +89,22 @@ _get_terraform_vault_output() {
 }
 
 #
+# This function automates gcloud config profile activation. Helps to eliminate google_project switching errors.
+# This function requires manual creation of gcloud config profile named after the target google_project
+#
+_activate_gcloud_profile() {
+  if [[ -z ${1} ]]; then
+    echo -e "Usage: ${FUNCNAME[0]} <google_project>"
+    exit 1
+  fi
+  local google_project=${1}
+  mapfile -t -d ' ' gcloud_profiles < <(gcloud config configurations list "--format=value(name)" | tr '\n' ' ')
+  if [ "${google_project}" == "$(compgen -W "${gcloud_profiles[*]}" "${google_project}" | head -1)" ]; then
+    gcloud config configurations activate ${google_project}
+  fi
+}
+
+#
 # Due to private GKE restrictions we have to use SSH SOCKS proxy to connect to GKE back plane
 #
 _connect_gke_proxy() {

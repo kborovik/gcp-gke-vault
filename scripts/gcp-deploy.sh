@@ -48,6 +48,7 @@ if [[ -z ${google_project} ]]; then
 fi
 
 _validate_google_project_name ${google_project}
+_activate_gcloud_profile ${google_project}
 
 export GOOGLE_PROJECT=${google_project}
 
@@ -87,6 +88,10 @@ elif [[ ${terraform} == "suspend" ]]; then
   for gcp_instance in $(gcloud compute instances list --filter='labels.daily_shutdown=yes' --format='value(name)'); do
     gcp_zone=$(gcloud compute instances list --filter="${gcp_instance}" --format='value(zone)')
     gcloud compute instances stop "${gcp_instance}" --zone="${gcp_zone:?}"
+  done
+
+  for gcp_privateca in $(gcloud privateca roots list --format=json | jq -r ".[] | select(.state==\"ENABLED\") | .name"); do
+    gcloud privateca roots disable "${gcp_privateca}"
   done
 
   for gcp_cluster in $(terraform state list | grep google_container_cluster); do
