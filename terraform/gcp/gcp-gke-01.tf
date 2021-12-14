@@ -52,7 +52,8 @@ resource "google_container_cluster" "gke_01" {
   }
 
   database_encryption {
-    state = "DECRYPTED"
+    state    = "ENCRYPTED"
+    key_name = google_kms_crypto_key.gke_app_encryption.id
   }
 
   timeouts {
