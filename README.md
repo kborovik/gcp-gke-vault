@@ -90,28 +90,28 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-generate-tls-cert.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-generate-tls-cert.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Test Vault HELM chart**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-deploy.sh -p <google_project> -d <vault_dns_name> -t
+> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name> -t
 ```
 
 **Deploy Vault HELM chart**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-deploy.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **(One-time) Initialize Vault**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-init.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-init.sh -p <google_project> -n <vault_dns_name>
 ```
 
 ## Vault Configuration
@@ -120,14 +120,14 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-config.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-config.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Apply Vault configuration**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-config.sh -p <google_project> -d <vault_dns_name> -a
+> ./scripts/vault-config.sh -p <google_project> -n <vault_dns_name> -a
 ```
 
 ## Vault Deployment Tests
@@ -136,14 +136,14 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-test-gke.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-test-gke.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Test Vault AppRoles**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-test-approle.sh -p <google_project> -d <vault_dns_name> -r <approle>
+> ./scripts/vault-test-approle.sh -p <google_project> -n <vault_dns_name> -r <approle>
 ```
 
 **Test Vault Google Cloud Auth Method**

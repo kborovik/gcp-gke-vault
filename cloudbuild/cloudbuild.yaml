@@ -30,7 +30,7 @@ steps:
       - "./scripts/vault-deploy.sh -p ${PROJECT_ID} -n vault1"
 
   # Setup HashiCorp Vault (vault1)
-  - id: "vault_setup"
+  - id: "vault_config"
     name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
     waitFor:
@@ -44,7 +44,7 @@ steps:
     name: "us-central1-nocker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
     waitFor:
-      - "vault_setup"
+      - "vault_config"
     args:
       - "-c"
       - "./scripts/vault-test-gke.sh -p ${PROJECT_ID} -n vault1"

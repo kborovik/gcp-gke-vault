@@ -30,6 +30,7 @@
     "mtls",
     "netcat",
     "networkservices",
+    "nindent",
     "OPTARG",
     "osconfig",
     "pgrep",
@@ -46,6 +47,7 @@
     "subnetworks",
     "templatefile",
     "tfvars",
-    "toset"
+    "toset",
+    "userconfig"
   ]
 }

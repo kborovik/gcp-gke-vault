@@ -12,7 +12,7 @@ echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sour
 echo "deb https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable.list
 apt-get -y update
 apt-get -y upgrade
-apt-get -y install vim less bash-completion bind9-dnsutils iputils-ping git jq nmap netcat-openbsd terraform vault kubectl helm
+apt-get -y install vim less bash-completion bind9-dnsutils iputils-ping git jq nmap netcat-openbsd tmux terraform vault kubectl helm
 apt-get -y autoremove
 curl -fsSLo /usr/local/share/ca-certificates/gcp.crt ${root_ca_crt}
 update-ca-certificates

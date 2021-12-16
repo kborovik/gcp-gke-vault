@@ -11,8 +11,6 @@ _usage() {
   echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\t -g <google_gke_name>  - GKE cluster name (optional)"
   echo -e "\t -a                    - Apply HELM chart (optional)"
-  echo -e "\t -l                    - Lint HELM chart (optional)"
-  echo -e "\t -d                    - Debug HELM chart (optional)"
   echo -e "\n Example:"
   echo -e "\n Test HELM chart:\n\t $(basename ${0}) -p <google_project> -n <vault_dns_name>"
   echo -e "\n Apply HELM chart:\n\t $(basename ${0}) -p <google_project> -n <vault_dns_name>" -a
@@ -21,7 +19,7 @@ _usage() {
 
 dry_run="--dry-run"
 
-while getopts "p:n:g:ald" option; do
+while getopts "p:n:g:a" option; do
   case ${option} in
   p)
     google_project=${OPTARG}
@@ -34,12 +32,6 @@ while getopts "p:n:g:ald" option; do
     ;;
   a)
     dry_run=""
-    ;;
-  l)
-    lint_chart="yes"
-    ;;
-  d)
-    enable_debug="--debug"
     ;;
   *)
     _usage
@@ -55,12 +47,8 @@ _validate_google_project_name ${google_project}
 _get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
 
-if [[ -n ${lint_chart} ]]; then
-  helm lint "kubernetes/vault/"
-  exit ${?}
-fi
-
-vault_version="1.8.5"
+helm_chart_dir="kubernetes/vault"
+vault_version=$(grep appVersion ${helm_chart_dir}/Chart.yaml | cut -d':' -f2 | tr -d ' ')
 vault_service_account=$(jq -r ".vault_service_account.value // empty" ${terraform_gcp_output:?})
 vault_ip_address=$(jq -r ".vault_dns_records.value[] | select(.name==\"${vault_dns_name}\") | .address // empty" ${terraform_gcp_output})
 
@@ -80,22 +68,21 @@ _connect_gke_proxy
 
 echo -e "\nRunning HELM deployment\n"
 
-helm upgrade "${vault_dns_name}" "kubernetes/vault/" \
+helm upgrade ${vault_dns_name} ${helm_chart_dir} \
   --install \
   --create-namespace \
-  --namespace "${vault_dns_name}" \
+  --namespace ${vault_dns_name} \
   --reset-values \
   --atomic \
   --wait \
   --timeout 3m \
   --cleanup-on-fail \
-  --set "global.googleRegion=${google_region}" \
-  --set "server.tlsCrt=${vault_tls_crt:?}" \
-  --set "server.tlsKey=${vault_tls_key:?}" \
-  --set "server.tlsCA=${tls_ca:?}" \
-  --set "server.extraEnvironmentVars.GOOGLE_PROJECT=${google_project}" \
-  --set "server.extraEnvironmentVars.GOOGLE_REGION=${google_region}" \
-  --set "server.serviceAccount.annotations=iam.gke.io/gcp-service-account: ${vault_service_account:?}" \
-  --set "server.image.repository=${google_docker_repo:?}/vault" \
-  --set "server.image.tag=${vault_version:?}" \
-  --set "server.serviceActive.loadBalancerIP=${vault_ip_address:?}" ${dry_run} ${enable_debug}
+  --set "google.region=${google_region}" \
+  --set "server.tls.Crt=${vault_tls_crt:?}" \
+  --set "server.tls.Key=${vault_tls_key:?}" \
+  --set "server.tls.CA=${tls_ca:?}" \
+  --set "server.image=${google_docker_repo:?}/vault:${vault_version:?}" \
+  --set "server.serviceAccount.gcpSA=${vault_service_account:?}" \
+  --set "server.environmentVars.GOOGLE_PROJECT=${google_project}" \
+  --set "server.environmentVars.GOOGLE_REGION=${google_region}" \
+  --set "server.service.active.loadBalancerIP=${vault_ip_address:?}" ${dry_run}

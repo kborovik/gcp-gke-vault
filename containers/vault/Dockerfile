@@ -1,16 +1,12 @@
 FROM alpine:3.14
 
-# This is the release of Vault to pull in.
-ARG VAULT_VERSION=1.8.5
+ARG VAULT_VERSION=1.9.1
 
 COPY *.crt /etc/ssl/certs/
 
-# Create a vault user and group first so the IDs get set the same way,
-# even as the rest of this may change over time.
 RUN addgroup vault && \
     adduser -S -G vault vault
 
-# Set up certificates, our base tools, and Vault.
 RUN set -eux; \
     apk add --no-cache ca-certificates gnupg openssl libcap su-exec dumb-init tzdata && \
     mv /etc/ssl/certs/*.crt /usr/local/share/ca-certificates/ && \
@@ -52,36 +48,23 @@ RUN set -eux; \
     apk del gnupg openssl && \
     rm -rf /root/.gnupg
 
-# /vault/logs is made available to use as a location to store audit logs, if
-# desired; /vault/file is made available to use as a location with the file
-# storage backend, if desired; the server will be started with /vault/config as
-# the configuration directory so you can add additional config files in that
-# location.
 RUN mkdir -p /vault/logs && \
     mkdir -p /vault/file && \
     mkdir -p /vault/config && \
-    chown -R vault:vault /vault
+    mkdir -p /vault/userconfig && \
+    mkdir -p /vault/data
 
-# Expose the logs directory as a volume since there's potentially long-running
-# state in there
+RUN chown -R vault:vault /vault
+
 VOLUME /vault/logs
-
-# Expose the file directory as a volume since there's potentially long-running
-# state in there
 VOLUME /vault/file
+VOLUME /vault/config
+VOLUME /vault/userconfig
+VOLUME /vault/data
 
-# 8200/tcp is the primary interface that applications use to interact with
-# Vault.
-EXPOSE 8200
+EXPOSE 8200/tcp
+EXPOSE 8201/tcp
 
-# The entry point script uses dumb-init as the top-level process to reap any
-# zombie processes created by Vault sub-processes.
-#
-# For production derivatives of this container, you shoud add the IPC_LOCK
-# capability so that Vault can mlock memory.
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-ENTRYPOINT ["docker-entrypoint.sh"]
+USER vault:vault
 
-# By default you'll get a single-node development server that stores everything
-# in RAM and bootstraps itself. Don't use this configuration for production.
-CMD ["server", "-dev"]
+ENTRYPOINT ["/usr/bin/dumb-init", "/bin/vault", "server", "-config", "/vault/config/server.hcl"]
