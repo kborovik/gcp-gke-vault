@@ -24,18 +24,18 @@ trap _exit_scripts EXIT
 _usage() {
   echo -e "\n Usage: $(basename ${0})"
   echo -e "\t -p <google_project>   - Google Project ID (required)"
-  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\n Example:"
-  echo -e "\t $(basename ${0}) -p <google_project> -d <vault_dns_name>"
+  echo -e "\t $(basename ${0}) -p <google_project> -n <vault_dns_name>"
   exit 1
 }
 
-while getopts "p:d:" option; do
+while getopts "p:n:" option; do
   case ${option} in
   p)
     google_project=${OPTARG}
     ;;
-  d)
+  n)
     vault_dns_name=${OPTARG}
     ;;
   *)

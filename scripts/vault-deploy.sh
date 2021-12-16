@@ -8,27 +8,38 @@ source "scripts/lib-functions.sh"
 _usage() {
   echo -e "\n Usage: $(basename ${0})"
   echo -e "\t -p <google_project>   - GCP Project ID (required)"
-  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\t -g <google_gke_name>  - GKE cluster name (optional)"
-  echo -e "\t -t                    - Enable test/debug mode (optional)"
+  echo -e "\t -a                    - Apply HELM chart (optional)"
+  echo -e "\t -l                    - Lint HELM chart (optional)"
+  echo -e "\t -d                    - Debug HELM chart (optional)"
   echo -e "\n Example:"
-  echo -e "\t $(basename ${0}) -p <google_project> -d <vault_dns_name>"
+  echo -e "\n Test HELM chart:\n\t $(basename ${0}) -p <google_project> -n <vault_dns_name>"
+  echo -e "\n Apply HELM chart:\n\t $(basename ${0}) -p <google_project> -n <vault_dns_name>" -a
   exit 1
 }
 
-while getopts "p:d:g:t" option; do
+dry_run="--dry-run"
+
+while getopts "p:n:g:ald" option; do
   case ${option} in
   p)
     google_project=${OPTARG}
     ;;
-  d)
+  n)
     vault_dns_name=${OPTARG}
     ;;
   g)
     google_gke_name=${OPTARG}
     ;;
-  t)
-    debug_flags="--debug --dry-run"
+  a)
+    dry_run=""
+    ;;
+  l)
+    lint_chart="yes"
+    ;;
+  d)
+    enable_debug="--debug"
     ;;
   *)
     _usage
@@ -43,6 +54,11 @@ fi
 _validate_google_project_name ${google_project}
 _get_terraform_gcp_output ${google_project}
 _validate_vault_dns_name ${vault_dns_name}
+
+if [[ -n ${lint_chart} ]]; then
+  helm lint "kubernetes/vault/"
+  exit ${?}
+fi
 
 vault_version="1.8.5"
 vault_service_account=$(jq -r ".vault_service_account.value // empty" ${terraform_gcp_output:?})
@@ -82,4 +98,4 @@ helm upgrade "${vault_dns_name}" "kubernetes/vault/" \
   --set "server.serviceAccount.annotations=iam.gke.io/gcp-service-account: ${vault_service_account:?}" \
   --set "server.image.repository=${google_docker_repo:?}/vault" \
   --set "server.image.tag=${vault_version:?}" \
-  --set "server.serviceActive.loadBalancerIP=${vault_ip_address:?}" ${debug_flags}
+  --set "server.serviceActive.loadBalancerIP=${vault_ip_address:?}" ${dry_run} ${enable_debug}
