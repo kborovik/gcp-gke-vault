@@ -41,7 +41,7 @@ steps:
 
   # Test HashiCorp Vault (vault1)
   - id: "vault_test_gke"
-    name: "us-central1-nocker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
+    name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
     waitFor:
       - "vault_config"
