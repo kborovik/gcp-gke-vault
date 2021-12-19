@@ -113,11 +113,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-server-config
+            name: vault-server-config
             defaultMode: 420
         - name: userconfig
           secret:
-            secretName: {{ .Release.Name }}-tls
+            secretName: vault-tls-certificate
             defaultMode: 420
         - name: home
           emptyDir: {}

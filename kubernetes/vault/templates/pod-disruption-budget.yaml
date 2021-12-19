@@ -1,7 +1,7 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ .Release.Name }}-pdb
+  name: vault-pdb
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "vault.labels" . | nindent 4 }}
