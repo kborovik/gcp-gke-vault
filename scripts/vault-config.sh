@@ -15,19 +15,19 @@ source "scripts/lib-functions.sh"
 _usage() {
   echo -e "\n Usage: $(basename ${0})"
   echo -e "\t -p <google_project>   - GCP Project ID (required)"
-  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\t -a                    - Apply Terraform scripts (optional)"
   echo -e "\t -l                    - Show Terraform state (optional)"
   echo -e "\n Example:"
-  echo -e "\n Terraform plan:\n\t $(basename $0) -p <google_project> -d <vault_dns_name>"
-  echo -e "\n Terraform apply:\n\t $(basename $0) -p <google_project> -d <vault_dns_name> -a"
-  echo -e "\n Terraform show:\n\t $(basename $0) -p <google_project> -d <vault_dns_name> -l"
+  echo -e "\n Terraform plan:\n\t $(basename $0) -p <google_project> -n <vault_dns_name>"
+  echo -e "\n Terraform apply:\n\t $(basename $0) -p <google_project> -n <vault_dns_name> -a"
+  echo -e "\n Terraform show:\n\t $(basename $0) -p <google_project> -n <vault_dns_name> -l"
   exit 1
 }
 
-while getopts "d:p:al" option; do
+while getopts "n:p:al" option; do
   case ${option} in
-  d)
+  n)
     vault_dns_name=${OPTARG}
     ;;
   p)
@@ -65,7 +65,7 @@ terraform_state_encryption_key=$(gcloud secrets versions access --secret="${vaul
 
 export TF_VAR_vault_dns_name=${vault_dns_name}
 export GOOGLE_PROJECT=${google_project}
-export VAULT_CLIENT_TIMEOUT="3"
+export VAULT_CLIENT_TIMEOUT="10"
 export VAULT_ADDR
 export VAULT_TOKEN
 

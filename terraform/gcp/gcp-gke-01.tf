@@ -4,20 +4,19 @@ Google Kubernetes cluster (GKE)
 
 */
 resource "google_container_cluster" "gke_01" {
-  count                       = var.enable_gke_01 == true ? 1 : 0
-  provider                    = google-beta
-  name                        = "${var.project_id}-01"
-  description                 = "GKE-01"
-  project                     = var.project_id
-  location                    = var.region
-  network                     = google_compute_network.main.self_link
-  subnetwork                  = google_compute_subnetwork.gke_nodes.self_link
-  remove_default_node_pool    = true
-  initial_node_count          = 1
-  min_master_version          = "1.21"
-  enable_shielded_nodes       = true
-  enable_intranode_visibility = true
-  datapath_provider           = "ADVANCED_DATAPATH"
+  count                    = var.enable_gke_01 == true ? 1 : 0
+  provider                 = google-beta
+  name                     = "${var.project_id}-01"
+  description              = "GKE-01"
+  project                  = var.project_id
+  location                 = var.region
+  network                  = google_compute_network.main.self_link
+  subnetwork               = google_compute_subnetwork.gke_nodes.self_link
+  remove_default_node_pool = true
+  initial_node_count       = 1
+  min_master_version       = "1.21"
+  enable_shielded_nodes    = true
+  datapath_provider        = "ADVANCED_DATAPATH"
 
   node_locations = [
     "${var.region}-a",

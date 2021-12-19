@@ -16,16 +16,14 @@ The repository implements Continue Deployment (CD) of Hashicorp Vault into a pri
 
 ## Hashicorp Vault
 
-Hashicorp Vault Kubernetes deployment based on the official Vault HELM chart (https://www.vaultproject.io/docs/platform/k8s/helm)
+Hashicorp Vault Kubernetes deployment based on the official Hashicorp Vault HELM chart. (https://www.vaultproject.io/docs/platform/k8s/helm)
 
-The official Hashicorp HELM chart was modified to narrow deployment scope:
-
-- RAFT as Vault storage backend (HA)
-- Google Cloud (GKE) as deployment target
+The official Hashicorp HELM chart was re-written to narrow the deployment scope and simplify the HELM chart. The current HELM chart implementation depends on the GCP Terraform code and is not intended to be used as a stand-alone HELM chart.
 
 Changes:
 
 - Kubernetes Services to enable GKE internal load-balancer
+- Kubernetes Services publishNotReadyAddresses to enable predictable HA failover
 - Kubernetes Secrets to allow TLS certificate automated deployment
 - Kubernetes ServiceAccount to allow key-less Auto-Unseal operations
 - Kubernetes PersistentVolume to allow consistent attachment Vault data GCP Persistent Disks (GCP Snapshot Policy)
@@ -90,28 +88,28 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-generate-tls-cert.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-generate-tls-cert.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Test Vault HELM chart**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-deploy.sh -p <google_project> -d <vault_dns_name> -t
+> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name> -t
 ```
 
 **Deploy Vault HELM chart**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-deploy.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **(One-time) Initialize Vault**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-init.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-init.sh -p <google_project> -n <vault_dns_name>
 ```
 
 ## Vault Configuration
@@ -120,14 +118,14 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-config.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-config.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Apply Vault configuration**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-config.sh -p <google_project> -d <vault_dns_name> -a
+> ./scripts/vault-config.sh -p <google_project> -n <vault_dns_name> -a
 ```
 
 ## Vault Deployment Tests
@@ -136,14 +134,14 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-test-gke.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-test-gke.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Test Vault AppRoles**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-test-approle.sh -p <google_project> -d <vault_dns_name> -r <approle>
+> ./scripts/vault-test-approle.sh -p <google_project> -n <vault_dns_name> -r <approle>
 ```
 
 **Test Vault Google Cloud Auth Method**

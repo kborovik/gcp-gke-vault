@@ -8,16 +8,16 @@ source "scripts/lib-functions.sh"
 _usage() {
   echo -e "\n Usage: $(basename $0)"
   echo -e "\t -p <google_project>   - GCP Project ID (required)"
-  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\t -r <approle_name>     - Vault AppRole Name (required)"
   echo -e "\n Example:"
-  echo -e "\t $(basename $0) -p <google_project> -d <vault_dns_name> -r <approle_name>"
+  echo -e "\t $(basename $0) -p <google_project> -n <vault_dns_name> -r <approle_name>"
   exit 1
 }
 
-while getopts "d:p:r:" option; do
+while getopts "n:p:r:" option; do
   case ${option} in
-  d)
+  n)
     vault_dns_name=${OPTARG}
     ;;
   p)
@@ -66,7 +66,7 @@ done
 
 VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} -format=json | jq -r ".auth.client_token // empty")
 export VAULT_TOKEN
-export VAULT_CLIENT_TIMEOUT="5"
+export VAULT_CLIENT_TIMEOUT="10"
 
 token_display_name=$(vault token lookup -format=json | jq -r ".data.meta | .role_name // empty")
 _print_header "Login as AppRole: ${token_display_name:?}"

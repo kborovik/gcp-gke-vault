@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-server-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "vault.labels" . | nindent 4 }}
+data:
+  server.hcl: |-
+    disable_mlock = true
+    ui            = true
+    listener "tcp" {
+      tls_disable        = false
+      address            = "0.0.0.0:8200"
+      cluster_address    = "0.0.0.0:8201"
+      tls_cert_file      = "/vault/userconfig/tls.crt"
+      tls_key_file       = "/vault/userconfig/tls.key"
+      tls_client_ca_file = "/vault/userconfig/tls.ca"
+    }
+    storage "raft" {
+      path = "/vault/data"
+    }
+    service_registration "kubernetes" {}

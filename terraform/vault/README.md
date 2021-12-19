@@ -12,14 +12,14 @@ The repository section implements Hashicorp Vault deployment and configuration.
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-setup.sh -p <google_project> -d <vault_dns_name>
+> ./scripts/vault-setup.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Apply Vault configuration**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-setup.sh -p <google_project> -d <vault_dns_name> -a
+> ./scripts/vault-setup.sh -p <google_project> -n <vault_dns_name> -a
 ```
 
 ## Hashicorp Vault Deployment Tests
@@ -28,7 +28,7 @@ The repository section implements Hashicorp Vault deployment and configuration.
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-test-approle.sh -p <google_project> -d <vault_dns_name> -r <approle>
+> ./scripts/vault-test-approle.sh -p <google_project> -n <vault_dns_name> -r <approle>
 ```
 
 # Vault AppRoles

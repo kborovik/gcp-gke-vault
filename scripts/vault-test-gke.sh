@@ -10,9 +10,9 @@ source "scripts/lib-functions.sh"
 _usage() {
   echo -e "\n Usage: $(basename $0)"
   echo -e "\t -p <google_project>   - GCP Project ID (required)"
-  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\n Example:"
-  echo -e "\t $(basename $0) -p <google_project> -d <vault_dns_name>"
+  echo -e "\t $(basename $0) -p <google_project> -n <vault_dns_name>"
   exit 1
 }
 
@@ -37,7 +37,7 @@ _restart_standby_pods() {
   standby_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=false" --output=jsonpath='{.items[*].metadata.name}')
   for pod in ${standby_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets "${vault_dns_name}" --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
       echo -e "Waiting for pod ${pod} to restart..."
       sleep 5
       i=$((i + 1))
@@ -54,7 +54,7 @@ _restart_active_pods() {
   active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
   for pod in ${active_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets "${vault_dns_name}" --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
       echo -e "Waiting for pod ${pod} to restart..."
       sleep 5
       i=$((i + 1))
@@ -79,9 +79,9 @@ _restart_active_pods() {
 
 # Main script
 
-while getopts "d:p:" option; do
+while getopts "n:p:" option; do
   case ${option} in
-  d)
+  n)
     vault_dns_name=${OPTARG}
     ;;
   p)
@@ -114,7 +114,7 @@ VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-k
 
 export VAULT_TOKEN
 export VAULT_ADDR="https://${vault_ip_address:?}:8200"
-export VAULT_CLIENT_TIMEOUT="3"
+export VAULT_CLIENT_TIMEOUT="10"
 
 _connect_gke_proxy
 

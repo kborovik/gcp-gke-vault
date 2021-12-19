@@ -24,18 +24,18 @@ trap _exit_scripts EXIT
 _usage() {
   echo -e "\n Usage: $(basename ${0})"
   echo -e "\t -p <google_project>   - Google Project ID (required)"
-  echo -e "\t -d <vault_dns_name>   - Vault GKE DNS Name (required)"
+  echo -e "\t -n <vault_dns_name>   - Vault GKE DNS Name (required)"
   echo -e "\n Example:"
-  echo -e "\t $(basename ${0}) -p <google_project> -d <vault_dns_name>"
+  echo -e "\t $(basename ${0}) -p <google_project> -n <vault_dns_name>"
   exit 1
 }
 
-while getopts "p:d:" option; do
+while getopts "p:n:" option; do
   case ${option} in
   p)
     google_project=${OPTARG}
     ;;
-  d)
+  n)
     vault_dns_name=${OPTARG}
     ;;
   *)
@@ -71,9 +71,9 @@ gcloud privateca certificates create \
   --use-preset-profile=leaf_mtls \
   --key-output-file="${tls_key}" \
   --cert-output-file="${tls_crt}" \
-  --dns-san="${vault_dns_name},${vault_dns_name}.${dns_domain:?},${vault_dns_name}-0.${vault_dns_name}-internal,${vault_dns_name}-1.${vault_dns_name}-internal,${vault_dns_name}-2.${vault_dns_name}-internal" \
-  --ip-san="127.0.0.1,${vault_ip_address:?}" \
-  --subject="CN=${vault_dns_name}.${dns_domain}"
+  --subject="CN=HashiCorp Vault (${google_project})" \
+  --dns-san="${vault_dns_name}.${dns_domain}, vault-0.vault-cluster, vault-1.vault-cluster, vault-2.vault-cluster" \
+  --ip-san="${vault_ip_address:?}, 127.0.0.1"
 
 gcloud secrets versions add "${vault_dns_name}-tls-key" \
   --project="${google_project}" \
