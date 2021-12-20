@@ -50,21 +50,6 @@ spec:
               protocol: TCP
               containerPort: 8202
           env:
-            - name: HOSTNAME
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.name
-            - name: HOST_IP
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: status.hostIP
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: status.podIP
             - name: VAULT_K8S_POD_NAME
               valueFrom:
                 fieldRef:
@@ -76,11 +61,11 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: VAULT_ADDR
-              value: https://$(HOSTNAME).vault-cluster:8200
+              value: https://$(VAULT_K8S_POD_NAME).vault-cluster:8200
             - name: VAULT_API_ADDR
-              value: https://$(HOSTNAME).vault-cluster:8200
+              value: https://$(VAULT_K8S_POD_NAME).vault-cluster:8200
             - name: VAULT_CLUSTER_ADDR
-              value: https://$(HOSTNAME).vault-cluster:8201
+              value: https://$(VAULT_K8S_POD_NAME).vault-cluster:8201
             - name: VAULT_CACERT
               value: /vault/userconfig/tls.ca
             - name: HOME
