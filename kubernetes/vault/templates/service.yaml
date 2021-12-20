@@ -23,6 +23,7 @@ spec:
       targetPort: 8201
   selector: 
     vault-active: "true"
+    vault-sealed: "false"
     {{- include "vault.selectorLabels" . | nindent 4 }}
 
 ---
@@ -44,7 +45,8 @@ spec:
       port: 8201
       targetPort: 8201
   selector: 
-    vault-perf-standby: "true"
+    vault-active: "false"
+    vault-sealed: "false"
     {{- include "vault.selectorLabels" . | nindent 4 }}
 
 ---
