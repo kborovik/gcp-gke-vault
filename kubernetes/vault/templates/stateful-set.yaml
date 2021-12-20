@@ -74,7 +74,7 @@ spec:
           readinessProbe:
             exec:
               command: ["/bin/sh", "-ec", "vault status -tls-skip-verify"]
-            initialDelaySeconds: 10
+            initialDelaySeconds: 5
             periodSeconds: 2
             successThreshold: 1
             failureThreshold: 3
