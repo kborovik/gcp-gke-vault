@@ -66,6 +66,7 @@ terraform_state_encryption_key=$(gcloud secrets versions access --secret="${vaul
 export TF_VAR_vault_dns_name=${vault_dns_name}
 export GOOGLE_PROJECT=${google_project}
 export VAULT_CLIENT_TIMEOUT="10"
+export VAULT_MAX_RETRIES="15"
 export VAULT_ADDR
 export VAULT_TOKEN
 
@@ -83,6 +84,7 @@ terraform validate
 _connect_gke_proxy
 
 until vault operator raft list-peers >/dev/null; do
+  sleep 3
   i=$((i + 1))
   if ((i > 10)); then
     echo -e "\nCannot access Vault.\n"

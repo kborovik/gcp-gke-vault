@@ -32,46 +32,48 @@ _test_put_eq_get() {
   fi
 }
 
-_restart_standby_pods() {
-  local i=0
+_restart_pods() {
+
   standby_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=false" --output=jsonpath='{.items[*].metadata.name}')
+  active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
+
   for pod in ${standby_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+    local i=0
+    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets ${vault_dns_name} --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
       echo -e "Waiting for pod ${pod} to restart..."
       sleep 5
       i=$((i + 1))
-      if ((i > 40)); then
-        echo -e "\nERROR: Vault pod restart time exceeded 200 seconds. Exiting...\n"
+      if ((i > 12)); then
+        echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
+        exit 1
+      fi
+    done
+  done
+
+  for pod in ${active_pods:?}; do
+    kubectl delete pods --namespace=${vault_dns_name} ${pod}
+    local i=0
+    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets ${vault_dns_name} --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+      echo -e "Waiting for pod ${pod} to restart..."
+      sleep 5
+      i=$((i + 1))
+      if ((i > 12)); then
+        echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
         exit 1
       fi
     done
   done
 }
 
-_restart_active_pods() {
+_is_vault_ready() {
   local i=0
-  active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
-  for pod in ${active_pods:?}; do
-    kubectl delete pods --namespace=${vault_dns_name} ${pod}
-    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
-      echo -e "Waiting for pod ${pod} to restart..."
-      sleep 5
-      i=$((i + 1))
-      if ((i > 20)); then
-        echo -e "\nERROR: Vault pod restart time exceeded 100 seconds. Exiting...\n"
-        exit 1
-      fi
-    done
-  done
-
-  local i=0
-  until vault operator raft list-peers >/dev/null; do
-    echo -e "Waiting for Vault RAFT to sync..."
-    sleep 3
+  until vault status >/dev/null; do
+    echo -e "Waiting for Vault to get ready..."
+    sleep 5
     i=$((i + 1))
-    if ((i > 10)); then
-      echo -e "\nVault is not ready in 30 seconds.\n"
+    if ((i > 24)); then
+      echo -e "\nVault is not ready in 120 seconds.\n"
       exit 1
     fi
   done
@@ -115,6 +117,7 @@ VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-k
 export VAULT_TOKEN
 export VAULT_ADDR="https://${vault_ip_address:?}:8200"
 export VAULT_CLIENT_TIMEOUT="10"
+export VAULT_MAX_RETRIES="15"
 
 _connect_gke_proxy
 
@@ -138,16 +141,15 @@ _test_put_eq_get
 _print_header "List Vault RAFT Peers"
 vault operator raft list-peers
 
-_print_header "Restarting Standby Vault Pods"
-_restart_standby_pods
-
-_print_header "Restarting Active Vault Pods"
-_restart_active_pods
+_print_header "Restarting Vault Pods"
+_restart_pods
 
 _print_header "List Vault RAFT Peers"
+_is_vault_ready
 vault operator raft list-peers
 
 _print_header "Read Vault secret ${vault_secret}"
+_is_vault_ready
 vault kv get ${vault_secret}
 
 _print_header "Testing if UUID-WRITE == UUID-READ"

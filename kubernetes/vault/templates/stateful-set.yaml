@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: vault
+  name: {{ .Release.Name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "vault.labels" . | nindent 4 }}
@@ -88,14 +88,11 @@ spec:
             {{- include "vault.environmentVars" .Values.server | nindent 12 }}
           readinessProbe:
             exec:
-              command:
-                - /bin/sh
-                - -ec
-                - vault status -tls-skip-verify
-            failureThreshold: 2
-            initialDelaySeconds: 5
-            periodSeconds: 5
+              command: ["/bin/sh", "-ec", "vault status -tls-skip-verify"]
+            initialDelaySeconds: 10
+            periodSeconds: 2
             successThreshold: 1
+            failureThreshold: 3
             timeoutSeconds: 3
           resources: {}
           securityContext:
@@ -113,11 +110,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: vault-server-config
+            name: {{ .Release.Name }}-server-config
             defaultMode: 420
         - name: userconfig
           secret:
-            secretName: vault-tls-certificate
+            secretName: {{ .Release.Name }}-tls-certificate
             defaultMode: 420
         - name: home
           emptyDir: {}

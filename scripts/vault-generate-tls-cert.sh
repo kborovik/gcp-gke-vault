@@ -72,7 +72,7 @@ gcloud privateca certificates create \
   --key-output-file="${tls_key}" \
   --cert-output-file="${tls_crt}" \
   --subject="CN=HashiCorp Vault (${google_project})" \
-  --dns-san="${vault_dns_name}.${dns_domain}, vault-0.vault-cluster, vault-1.vault-cluster, vault-2.vault-cluster" \
+  --dns-san="${vault_dns_name}.${dns_domain}, ${vault_dns_name}-0.vault-cluster, ${vault_dns_name}-1.vault-cluster, ${vault_dns_name}-2.vault-cluster" \
   --ip-san="${vault_ip_address:?}, 127.0.0.1"
 
 gcloud secrets versions add "${vault_dns_name}-tls-key" \
