@@ -32,39 +32,37 @@ _test_put_eq_get() {
   fi
 }
 
-_restart_standby_pods() {
-  local i=0
+_restart_pods() {
+
   standby_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=false" --output=jsonpath='{.items[*].metadata.name}')
+  active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
+
+  local i=0
   for pod in ${standby_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-  done
-  while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
-    echo -e "Waiting for pods to restart..."
-    sleep 5
-    i=$((i + 1))
-    if ((i > 12)); then
-      echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
-      exit 1
-    fi
+    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets ${vault_dns_name} --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+      echo -e "Waiting for pod ${pod} to restart..."
+      sleep 5
+      i=$((i + 1))
+      if ((i > 12)); then
+        echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
+        exit 1
+      fi
+    done
   done
 
-  sleep 5
-}
-
-_restart_active_pods() {
   local i=0
-  active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
   for pod in ${active_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-  done
-  while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
-    echo -e "Waiting for pod ${pod} to restart..."
-    sleep 5
-    i=$((i + 1))
-    if ((i > 12)); then
-      echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
-      exit 1
-    fi
+    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets ${vault_dns_name} --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+      echo -e "Waiting for pod ${pod} to restart..."
+      sleep 5
+      i=$((i + 1))
+      if ((i > 12)); then
+        echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
+        exit 1
+      fi
+    done
   done
 
   local i=0
@@ -77,8 +75,6 @@ _restart_active_pods() {
       exit 1
     fi
   done
-
-  sleep 5
 }
 
 # Main script
@@ -142,11 +138,8 @@ _test_put_eq_get
 _print_header "List Vault RAFT Peers"
 vault operator raft list-peers
 
-_print_header "Restarting Standby Vault Pods"
-_restart_standby_pods
-
-_print_header "Restarting Active Vault Pods"
-_restart_active_pods
+_print_header "Restarting Vault Pods"
+_restart_pods
 
 _print_header "List Vault RAFT Peers"
 vault operator raft list-peers

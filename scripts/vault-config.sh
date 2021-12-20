@@ -83,6 +83,7 @@ terraform validate
 _connect_gke_proxy
 
 until vault operator raft list-peers >/dev/null; do
+  sleep 3
   i=$((i + 1))
   if ((i > 10)); then
     echo -e "\nCannot access Vault.\n"
