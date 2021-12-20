@@ -37,16 +37,18 @@ _restart_standby_pods() {
   standby_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=false" --output=jsonpath='{.items[*].metadata.name}')
   for pod in ${standby_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
-      echo -e "Waiting for pod ${pod} to restart..."
-      sleep 5
-      i=$((i + 1))
-      if ((i > 40)); then
-        echo -e "\nERROR: Vault pod restart time exceeded 200 seconds. Exiting...\n"
-        exit 1
-      fi
-    done
   done
+  while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+    echo -e "Waiting for pods to restart..."
+    sleep 5
+    i=$((i + 1))
+    if ((i > 12)); then
+      echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
+      exit 1
+    fi
+  done
+
+  sleep 5
 }
 
 _restart_active_pods() {
@@ -54,27 +56,29 @@ _restart_active_pods() {
   active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
   for pod in ${active_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
-    while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
-      echo -e "Waiting for pod ${pod} to restart..."
-      sleep 5
-      i=$((i + 1))
-      if ((i > 20)); then
-        echo -e "\nERROR: Vault pod restart time exceeded 100 seconds. Exiting...\n"
-        exit 1
-      fi
-    done
+  done
+  while [[ $(kubectl -n "${vault_dns_name}" get statefulsets vault --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
+    echo -e "Waiting for pod ${pod} to restart..."
+    sleep 5
+    i=$((i + 1))
+    if ((i > 12)); then
+      echo -e "\nERROR: Vault pod restart time exceeded 60 seconds. Exiting...\n"
+      exit 1
+    fi
   done
 
   local i=0
   until vault operator raft list-peers >/dev/null; do
     echo -e "Waiting for Vault RAFT to sync..."
-    sleep 3
+    sleep 5
     i=$((i + 1))
-    if ((i > 10)); then
-      echo -e "\nVault is not ready in 30 seconds.\n"
+    if ((i > 12)); then
+      echo -e "\nVault is not ready in 60 seconds.\n"
       exit 1
     fi
   done
+
+  sleep 5
 }
 
 # Main script
