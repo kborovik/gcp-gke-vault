@@ -48,6 +48,8 @@ for vault_gcp_role in "${vault_gcp_roles[@]}"; do
 
   VAULT_TOKEN=$(vault write -field=token "auth/gcp/login" role="${vault_gcp_role}" jwt="${gce_jwt:?}")
   export VAULT_TOKEN
+  export VAULT_CLIENT_TIMEOUT="10"
+  export VAULT_MAX_RETRIES="15"
 
   vault_secret="kv/${vault_gcp_role}"
 

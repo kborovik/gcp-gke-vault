@@ -117,6 +117,7 @@ VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-k
 export VAULT_TOKEN
 export VAULT_ADDR="https://${vault_ip_address:?}:8200"
 export VAULT_CLIENT_TIMEOUT="10"
+export VAULT_MAX_RETRIES="15"
 
 _connect_gke_proxy
 
