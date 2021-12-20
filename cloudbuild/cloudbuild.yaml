@@ -27,7 +27,7 @@ steps:
       - "terraform_apply"
     args:
       - "-c"
-      - "./scripts/vault-deploy.sh -p ${PROJECT_ID} -n vault1"
+      - "./scripts/vault-deploy.sh -p ${PROJECT_ID} -n vault1 -a"
 
   # Setup HashiCorp Vault (vault1)
   - id: "vault_config"
