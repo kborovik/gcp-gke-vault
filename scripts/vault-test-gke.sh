@@ -37,9 +37,9 @@ _restart_pods() {
   standby_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=false" --output=jsonpath='{.items[*].metadata.name}')
   active_pods=$(kubectl -n "${vault_dns_name}" get pods --selector="vault-active=true" --output=jsonpath='{.items[*].metadata.name}')
 
-  local i=0
   for pod in ${standby_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
+    local i=0
     while [[ $(kubectl -n "${vault_dns_name}" get statefulsets ${vault_dns_name} --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
       echo -e "Waiting for pod ${pod} to restart..."
       sleep 5
@@ -51,9 +51,9 @@ _restart_pods() {
     done
   done
 
-  local i=0
   for pod in ${active_pods:?}; do
     kubectl delete pods --namespace=${vault_dns_name} ${pod}
+    local i=0
     while [[ $(kubectl -n "${vault_dns_name}" get statefulsets ${vault_dns_name} --output=jsonpath='{.status.readyReplicas}') != 3 ]]; do
       echo -e "Waiting for pod ${pod} to restart..."
       sleep 5
