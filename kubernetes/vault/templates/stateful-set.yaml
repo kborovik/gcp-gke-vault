@@ -76,9 +76,9 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
             - name: VAULT_ADDR
-              value: https://127.0.0.1:8200
+              value: https://$(HOSTNAME).vault-cluster:8200
             - name: VAULT_API_ADDR
-              value: https://$(POD_IP):8200
+              value: https://$(HOSTNAME).vault-cluster:8200
             - name: VAULT_CLUSTER_ADDR
               value: https://$(HOSTNAME).vault-cluster:8201
             - name: VAULT_CACERT
