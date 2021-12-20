@@ -64,14 +64,16 @@ _restart_pods() {
       fi
     done
   done
+}
 
+_is_vault_ready() {
   local i=0
-  until vault operator raft list-peers >/dev/null; do
-    echo -e "Waiting for Vault RAFT to sync..."
+  until vault status >/dev/null; do
+    echo -e "Waiting for Vault to get ready..."
     sleep 5
     i=$((i + 1))
-    if ((i > 12)); then
-      echo -e "\nVault is not ready in 60 seconds.\n"
+    if ((i > 24)); then
+      echo -e "\nVault is not ready in 120 seconds.\n"
       exit 1
     fi
   done
@@ -142,9 +144,11 @@ _print_header "Restarting Vault Pods"
 _restart_pods
 
 _print_header "List Vault RAFT Peers"
+_is_vault_ready
 vault operator raft list-peers
 
 _print_header "Read Vault secret ${vault_secret}"
+_is_vault_ready
 vault kv get ${vault_secret}
 
 _print_header "Testing if UUID-WRITE == UUID-READ"
