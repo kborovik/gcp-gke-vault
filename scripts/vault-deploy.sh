@@ -63,6 +63,8 @@ vault_tls_crt=$(gcloud secrets versions access --secret="${vault_dns_name}-tls-c
 secret_version=$(gcloud secrets versions list "${vault_dns_name}-tls-key" --sort-by=name --limit=1 --format="value(name)")
 vault_tls_key=$(gcloud secrets versions access --secret="${vault_dns_name}-tls-key" "${secret_version:?}" | base64 --wrap=0)
 tls_ca=$(jq -r ".root_ca_certificate.value // empty" ${terraform_gcp_output:?} | base64 --wrap=0)
+vault_gcpckms_seal_key_ring=$(jq -r ".vault_gcpckms_seal_key_ring.value // empty" ${terraform_gcp_output:?})
+vault_gcpckms_seal_crypto_key=$(jq -r ".vault_gcpckms_seal_crypto_key.value // empty" ${terraform_gcp_output:?})
 
 _connect_gke_proxy
 
@@ -85,4 +87,6 @@ helm upgrade ${vault_dns_name} ${helm_chart_dir} \
   --set "server.serviceAccount.gcpSA=${vault_service_account:?}" \
   --set "server.environmentVars.GOOGLE_PROJECT=${google_project}" \
   --set "server.environmentVars.GOOGLE_REGION=${google_region}" \
+  --set "server.environmentVars.VAULT_GCPCKMS_SEAL_KEY_RING=${vault_gcpckms_seal_key_ring}" \
+  --set "server.environmentVars.VAULT_GCPCKMS_SEAL_CRYPTO_KEY=${vault_gcpckms_seal_crypto_key}" \
   --set "server.service.active.loadBalancerIP=${vault_ip_address:?}" ${dry_run}
