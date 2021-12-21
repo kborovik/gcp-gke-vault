@@ -60,6 +60,8 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+            - name: HOME
+              value: /home/vault
             - name: VAULT_ADDR
               value: https://$(VAULT_K8S_POD_NAME).vault-cluster:8200
             - name: VAULT_API_ADDR
@@ -68,8 +70,12 @@ spec:
               value: https://$(VAULT_K8S_POD_NAME).vault-cluster:8201
             - name: VAULT_CACERT
               value: /vault/userconfig/tls.ca
-            - name: HOME
-              value: /home/vault
+            - name: VAULT_LOG_FORMAT
+              value: standard
+            - name: VAULT_LOG_LEVEL
+              value: info
+            - name: VAULT_SEAL_TYPE
+              value: gcpckms
             {{- include "vault.environmentVars" .Values.server | nindent 12 }}
           readinessProbe:
             exec:
@@ -83,15 +89,18 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
           volumeMounts:
+            - name: home
+              mountPath: /home/vault
+              readOnly: false
             - name: data
               mountPath: /vault/data
+              readOnly: false
             - name: config
               mountPath: /vault/config
+              readOnly: true
             - name: userconfig
               mountPath: /vault/userconfig
               readOnly: true
-            - mountPath: /home/vault
-              name: home
       volumes:
         - name: config
           configMap:
