@@ -67,7 +67,7 @@ done
 VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} -format=json | jq -r ".auth.client_token // empty")
 export VAULT_TOKEN
 export VAULT_CLIENT_TIMEOUT="10"
-export VAULT_MAX_RETRIES="15"
+export VAULT_MAX_RETRIES="30"
 
 token_display_name=$(vault token lookup -format=json | jq -r ".data.meta | .role_name // empty")
 _print_header "Login as AppRole: ${token_display_name:?}"

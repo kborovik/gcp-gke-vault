@@ -66,19 +66,6 @@ _restart_pods() {
   done
 }
 
-_is_vault_ready() {
-  local i=0
-  until vault status >/dev/null; do
-    echo -e "Waiting for Vault to get ready..."
-    sleep 5
-    i=$((i + 1))
-    if ((i > 24)); then
-      echo -e "\nVault is not ready in 120 seconds.\n"
-      exit 1
-    fi
-  done
-}
-
 # Main script
 
 while getopts "n:p:" option; do
@@ -117,7 +104,7 @@ VAULT_TOKEN=$(gcloud secrets versions access --secret="${vault_dns_name}-vault-k
 export VAULT_TOKEN
 export VAULT_ADDR="https://${vault_ip_address:?}:8200"
 export VAULT_CLIENT_TIMEOUT="10"
-export VAULT_MAX_RETRIES="15"
+export VAULT_MAX_RETRIES="30"
 
 _connect_gke_proxy
 
@@ -145,11 +132,9 @@ _print_header "Restarting Vault Pods"
 _restart_pods
 
 _print_header "List Vault RAFT Peers"
-_is_vault_ready
 vault operator raft list-peers
 
 _print_header "Read Vault secret ${vault_secret}"
-_is_vault_ready
 vault kv get ${vault_secret}
 
 _print_header "Testing if UUID-WRITE == UUID-READ"
