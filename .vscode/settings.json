@@ -17,6 +17,7 @@
     "fortanix",
     "FUNCNAME",
     "gcloud",
+    "gcpckms",
     "getopts",
     "googleapis",
     "gserviceaccount",
