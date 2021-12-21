@@ -14,7 +14,7 @@ spec:
   claimRef:
     kind: PersistentVolumeClaim
     name: data-{{ .Release.Name }}-0
-    namespace: vault1
+    namespace: {{ .Release.Namespace }}
   gcePersistentDisk:
     fsType: ext4
     pdName: data-{{ .Release.Name }}-0
@@ -46,7 +46,7 @@ spec:
   claimRef:
     kind: PersistentVolumeClaim
     name: data-{{ .Release.Name }}-1
-    namespace: vault1
+    namespace: {{ .Release.Namespace }}
   gcePersistentDisk:
     fsType: ext4
     pdName: data-{{ .Release.Name }}-1
@@ -78,7 +78,7 @@ spec:
   claimRef:
     kind: PersistentVolumeClaim
     name: data-{{ .Release.Name }}-2
-    namespace: vault1
+    namespace: {{ .Release.Namespace }}
   gcePersistentDisk:
     fsType: ext4
     pdName: data-{{ .Release.Name }}-2
