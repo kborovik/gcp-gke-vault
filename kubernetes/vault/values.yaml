@@ -1,3 +1,6 @@
+#
+# All null values supplied by scripts/vault-deploy.sh script
+#
 google:
   region: null
 server:
@@ -14,10 +17,7 @@ server:
   environmentVars:
     GOOGLE_PROJECT: null
     GOOGLE_REGION: null
-    VAULT_LOG_FORMAT: standard
-    VAULT_LOG_LEVEL: info
-    VAULT_SEAL_TYPE: gcpckms
-    VAULT_GCPCKMS_SEAL_CRYPTO_KEY: vault-seal-gcp-hsm
-    VAULT_GCPCKMS_SEAL_KEY_RING: us-central1
+    VAULT_GCPCKMS_SEAL_KEY_RING: null
+    VAULT_GCPCKMS_SEAL_CRYPTO_KEY: null
   storage:
     capacity: 10Gi
