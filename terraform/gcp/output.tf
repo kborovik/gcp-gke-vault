@@ -28,6 +28,16 @@ output "vault_service_account" {
   value       = try(google_service_account.vault.email, null)
 }
 
+output "vault_gcpckms_seal_key_ring" {
+  description = "Google KMS key ring"
+  value       = try(google_kms_key_ring.us_central1.name, null)
+}
+
+output "vault_gcpckms_seal_crypto_key" {
+  description = "Google KMS Vault auto-unseal key"
+  value       = try(google_kms_crypto_key.vault_seal_gcp_hsm.name, null)
+}
+
 output "internal_ip_gke_proxy" {
   description = "GKE Proxy Internal IP address"
   value       = try(google_compute_address.internal_ip_gke_proxy[0].address, null)
