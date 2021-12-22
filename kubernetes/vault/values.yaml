@@ -1,5 +1,5 @@
 #
-# All null values supplied by scripts/vault-deploy.sh script
+# All null values supplied by the scripts/vault-deploy.sh script
 #
 google:
   region: null
