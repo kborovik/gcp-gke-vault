@@ -9,4 +9,8 @@ resource "google_secret_manager_secret" "ssh_key_cloudbuild" {
   replication {
     automatic = true
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }

@@ -8,6 +8,10 @@ resource "google_privateca_ca_pool" "main" {
     publish_ca_cert = true
     publish_crl     = false
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 
@@ -61,5 +65,9 @@ resource "google_privateca_certificate_authority" "main" {
 
   key_spec {
     algorithm = "EC_P256_SHA256"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
