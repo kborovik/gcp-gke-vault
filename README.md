@@ -2,7 +2,15 @@
 
 # About
 
-The repository implements Continue Deployment (CD) of Hashicorp Vault into a private GCP Kubernetes cluster (GKE).
+The project implements Continuous Delivery (CD) of Hashicorp Vault into a private GCP Kubernetes cluster (GKE).
+
+GCP Cloud Build pipeline steps:
+
+- Build GCP infrastructure with Terraform code (VPC, GKE, Vault storage, etc.)
+- Deploy HashiCorp Vault with HELM chart
+- Configure HashiCorp Vault with Terraform code (auth, policies, mounts, etc.)
+- Test HashiCorp Vault GKE failover and RAFT replication
+- Test HashiCorp Vault configuration (app_roles, transit, etc.)
 
 ## Implemented GCP Services
 
@@ -169,14 +177,14 @@ Cloud Build configuration files are located in `cloudbuild/` folder.
 
 - GCP project settings and feature flags (`terraform/gcp/google_project_id.tfvars`)
 - GCP general (`terraform/gcp/gcp-settings.tf`)
-- CloudBuild configuration (`terraform/gcp/cloudbuild-settings.tf`)
+- Cloud Build configuration (`terraform/gcp/cloudbuild-settings.tf`)
 - HashiCorp Vault resources (`terraform/gcp/vault-settings.tf`)
 
 GCP project settings (`terraform/gcp/google_project_id.tfvars`) keep differences between deployment environments (dev, prod, etc.) and control GCP project feature flags (enable/disable GKE deployment, etc)
 
 # Google Cloud Bash Functions
 
-**Show last CloudBuild output for us-central1 region**
+**Show last Cloud Build output for us-central1 region**
 
 ```bash
 gcp-show-cloudbuild-us_central1() {
@@ -187,7 +195,7 @@ gcp-show-cloudbuild-us_central1() {
 }
 ```
 
-**Show last CloudBuild output for Global region**
+**Show last Cloud Build output for Global region**
 
 ```bash
 gcp-show-cloudbuild-global() {
