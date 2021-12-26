@@ -2,7 +2,7 @@
 
 Create data disk for Vault GKE deployment and attach daily snapshot policy
 
-! IMPORTANT The name of google_compute_disk is hardcoded to match the name of PersistentVolume in Vault HELM chart
+! IMPORTANT The name of google_compute_disk is set to match the name of PersistentVolume in Vault HELM chart
 
 */
 locals {
@@ -17,7 +17,7 @@ resource "google_compute_disk" "vault_data_0" {
   size  = 10
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
     ignore_changes = [
       snapshot
     ]

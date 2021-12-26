@@ -12,7 +12,7 @@ resource "google_secret_manager_secret" "vault_tls_key" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
 }
@@ -26,7 +26,7 @@ resource "google_secret_manager_secret" "vault_tls_crt" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 
 }
@@ -40,7 +40,7 @@ resource "google_secret_manager_secret" "vault_key" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
 
@@ -53,7 +53,7 @@ resource "google_secret_manager_secret" "vault_terraform_state_key" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
 
@@ -66,7 +66,7 @@ resource "google_secret_manager_secret" "vault_license_key" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
 
@@ -84,7 +84,7 @@ resource "google_secret_manager_secret" "approle_test1" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
 
@@ -97,6 +97,6 @@ resource "google_secret_manager_secret" "approle_test2" {
   }
 
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
