@@ -57,16 +57,6 @@ _connect_gke_proxy
 export VAULT_CLIENT_TIMEOUT="10"
 export VAULT_MAX_RETRIES="30"
 
-until vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} &>/dev/null; do
-  echo -e "Waiting for Vault to get ready..."
-  sleep 3
-  i=$((i + 1))
-  if ((i > 10)); then
-    echo -e "\n### ERROR: Vault is not ready in 30 seconds.\n"
-    exit 1
-  fi
-done
-
 VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id:?} secret_id=${secret_id:?} -format=json | jq -r ".auth.client_token // empty")
 export VAULT_TOKEN
 
