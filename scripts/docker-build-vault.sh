@@ -32,6 +32,7 @@ _validate_google_project_name ${google_project}
 _get_terraform_gcp_output ${google_project}
 
 google_region=$(jq -r ".google_region.value // empty" "${terraform_gcp_output:?}")
+root_ca_certificate_url=$(jq -r ".root_ca_certificate_url.value // empty" "${terraform_gcp_output:?}")
 docker_tag="${google_region:?}-docker.pkg.dev/${google_project}/containers/vault"
 vault_version="$(grep -e "^ARG VAULT_VERSION=" containers/vault/Dockerfile | cut -d "=" -f 2)"
 
@@ -39,6 +40,7 @@ gcloud auth configure-docker "${google_region:?}-docker.pkg.dev"
 
 docker build \
   --tag="${docker_tag:?}:${vault_version:?}" \
+  --build-arg="ROOT_CA_CERTIFICATE_URL=${root_ca_certificate_url}" \
   --file="containers/vault/Dockerfile" "containers/vault/"
 
 docker push "${docker_tag}:${vault_version}"

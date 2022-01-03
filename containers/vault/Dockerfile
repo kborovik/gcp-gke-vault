@@ -1,15 +1,14 @@
 FROM alpine:3.15
 
 ARG VAULT_VERSION=1.9.1
-
-COPY *.crt /etc/ssl/certs/
+ARG ROOT_CA_CERTIFICATE_URL
 
 RUN addgroup vault && \
     adduser -S -G vault vault
 
 RUN set -eux; \
     apk add --no-cache ca-certificates gnupg openssl libcap su-exec dumb-init tzdata && \
-    mv /etc/ssl/certs/*.crt /usr/local/share/ca-certificates/ && \
+    wget -O /usr/local/share/ca-certificates/gcp-private-ca.crt ${ROOT_CA_CERTIFICATE_URL} && \
     update-ca-certificates && \
     apkArch="$(apk --print-arch)"; \
     case "$apkArch" in \
