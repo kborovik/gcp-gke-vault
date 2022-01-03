@@ -19,7 +19,6 @@ steps:
       - "-c"
       - "./scripts/gcp-deploy.sh -p ${PROJECT_ID} -a"
 
-  # Deploy HashiCorp Vault (vault1)
   - id: "vault_deploy"
     name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
@@ -29,7 +28,6 @@ steps:
       - "-c"
       - "./scripts/vault-deploy.sh -p ${PROJECT_ID} -n vault1 -a"
 
-  # Setup HashiCorp Vault (vault1)
   - id: "vault_config"
     name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
@@ -39,7 +37,6 @@ steps:
       - "-c"
       - "./scripts/vault-config.sh -p ${PROJECT_ID} -n vault1 -a"
 
-  # Test HashiCorp Vault (vault1)
   - id: "vault_test_gke"
     name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
@@ -49,7 +46,6 @@ steps:
       - "-c"
       - "./scripts/vault-test-gke.sh -p ${PROJECT_ID} -n vault1"
 
-  # Test HashiCorp Vault (vault1)
   - id: "vault_test_approle"
     name: "us-central1-docker.pkg.dev/${PROJECT_ID}/containers/gcp-deployment:latest"
     entrypoint: "bash"
