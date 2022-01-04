@@ -12,9 +12,9 @@ GCP Cloud Build pipeline steps:
 - Test HashiCorp Vault GKE failover and RAFT replication
 - Test HashiCorp Vault configuration (app_roles, transit, etc.)
 
-## Implemented GCP Services
+## Google Cloud Services
 
-- GCP Kubernetes Engine (GKE) with Shared VPC
+- GCP Kubernetes Engine (GKE)
 - GCP Certificate Authority (Root CA)
 - GCP Cloud Key Management (KMS)
 - GCP Cloud Build (CI/CD)
@@ -26,19 +26,19 @@ GCP Cloud Build pipeline steps:
 
 Hashicorp Vault Kubernetes deployment based on the official Hashicorp Vault HELM chart. (https://www.vaultproject.io/docs/platform/k8s/helm)
 
-The official Hashicorp HELM chart was re-written to narrow the deployment scope and simplify the HELM chart. The current HELM chart implementation depends on the GCP Terraform code and is not intended to be used as a stand-alone HELM chart.
+I re-wrote the official Hashicorp HELM chart to narrow the deployment scope and simplify the HELM code. The current HELM chart implementation depends on the GCP Terraform code and is not designed as a stand-alone unit.
 
 Changes:
 
 - Kubernetes Services to enable GKE internal load-balancer
-- Kubernetes Services publishNotReadyAddresses to enable predictable HA failover
+- Kubernetes Services publishNotReadyAddresses to enable predictable failover
 - Kubernetes Secrets to allow TLS certificate automated deployment
-- Kubernetes ServiceAccount to allow key-less Auto-Unseal operations
+- Kubernetes Workload Identity to allow key-less Auto-Unseal operations
 - Kubernetes PersistentVolume to allow consistent attachment Vault data GCP Persistent Disks (GCP Snapshot Policy)
 
 ## Deployment Environments
 
-The repository structure assumes the deployment target is a single GCP project. All deployment environments (GCP Projects) build from the same commit.
+The repository structure assumes the deployment target is a single GCP project. All deployment environments (GCP Projects) build from the same code.
 
 Example of deployment environments map:
 
@@ -161,16 +161,6 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 > ./vault-test-gcp.sh <vault_ip_address>
 ```
 
-## Cloud Build Deployment (CI/CD)
-
-### Cloud Build Deployment from GitHub
-
-Cloud Build configuration files are located in `cloudbuild/` folder.
-
-**Building repositories from GitHub**
-
-- https://cloud.google.com/build/docs/automating-builds/build-repos-from-github
-
 # Repository Settings
 
 ## GCP Resources Terraform Settings
@@ -182,31 +172,7 @@ Cloud Build configuration files are located in `cloudbuild/` folder.
 
 GCP project settings (`terraform/gcp/google_project_id.tfvars`) keep differences between deployment environments (dev, prod, etc.) and control GCP project feature flags (enable/disable GKE deployment, etc)
 
-# Google Cloud Bash Functions
-
-**Show last Cloud Build output for us-central1 region**
-
-```bash
-gcp-show-cloudbuild-us_central1() {
-  local build_id
-  gcloud builds list --region=us-central1 --limit=3
-  build_id=$(gcloud builds list --region=us-central1 --limit=1 --format="value(id)")
-  gcloud builds log --region=us-central1 --stream ${build_id:?}
-}
-```
-
-**Show last Cloud Build output for Global region**
-
-```bash
-gcp-show-cloudbuild-global() {
-  local build_id
-  gcloud builds list --limit=3
-  build_id=$(gcloud builds list --limit=1 --format="value(id)")
-  gcloud builds log --stream ${build_id:?}
-}
-```
-
-# GCP Documentation and General Notes
+# Google Cloud Notes
 
 ## Virtual Private Network (VPC)
 
