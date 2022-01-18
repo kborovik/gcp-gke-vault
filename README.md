@@ -12,17 +12,22 @@ GCP Cloud Build pipeline steps:
 - Test HashiCorp Vault GKE failover and RAFT replication
 - Test HashiCorp Vault configuration (app_roles, transit, etc.)
 
-## Google Cloud Services
+# Google Cloud
+
+## Implemented Google Cloud Services
 
 - GCP Kubernetes Engine (GKE)
 - GCP Certificate Authority (Root CA)
 - GCP Cloud Key Management (KMS)
 - GCP Cloud Build (CI/CD)
 - GCP Cloud DNS
+- GCP Cloud Logging routes
 - GCP IAM Custom roles
 - GCE OS Patch Policies (automatic weekly OS patching)
 
-## Hashicorp Vault
+Google Cloud detailed documentation: [Google Cloud Readme](docs/google-cloud.md)
+
+# Hashicorp Vault
 
 Hashicorp Vault Kubernetes deployment based on the official Hashicorp Vault HELM chart. (https://www.vaultproject.io/docs/platform/k8s/helm)
 
@@ -36,7 +41,9 @@ Changes:
 - Kubernetes Workload Identity to allow key-less Auto-Unseal operations
 - Kubernetes PersistentVolume to allow consistent attachment Vault data GCP Persistent Disks (GCP Snapshot Policy)
 
-## Deployment Environments
+HashiCorp Vault detailed documentation: [HashiCorp Vault Readme](docs/hashicorp-vault.md)
+
+# Deployment Environments
 
 The repository structure assumes the deployment target is a single GCP project. All deployment environments (GCP Projects) build from the same code.
 
@@ -171,41 +178,3 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 - HashiCorp Vault resources (`terraform/gcp/vault-settings.tf`)
 
 GCP project settings (`terraform/gcp/google_project_id.tfvars`) keep differences between deployment environments (dev, prod, etc.) and control GCP project feature flags (enable/disable GKE deployment, etc)
-
-# Google Cloud Notes
-
-## Virtual Private Network (VPC)
-
-### VPC Networks Peering Restrictions
-
-Transitive peering is not supported. Only directly peered networks can communicate. In other words, if VPC network N2 peers with N1 and N3, but N1 and N3 are not directly connected, VPC network N1 cannot communicate with VPC network N3 over VPC Network Peering.
-
-```shell
-{N1} <=> {N2} <=> {N3}
-```
-
-- https://cloud.google.com/vpc/docs/vpc-peering#restrictions
-
-## Kubernetes Clusters (GKE)
-
-### Private GKE Cluster
-
-**Accessing Private GKE from a local workstation using SSH SOCKS5 proxy**
-
-```bash
-> gcloud compute ssh ${gke_proxy_instance} --zone=us-central1-a --ssh-flag="-f -n -N -D 127.0.0.1:8080"
-> export HTTPS_PROXY=socks5://127.0.0.1:8080
-
-> kubectl cluster-info
-Kubernetes control plane is running at https://10.0.0.2
-```
-
-**Accessing Private GKE from Cloud Build using SSH SOCKS5 proxy**
-
-```bash
-> ssh -o StrictHostKeyChecking=no -f -n -N -D 127.0.0.1:8080 cloudbuild@${gke_proxy_ip_address}
-> export HTTPS_PROXY=socks5://127.0.0.1:8080
-
-> kubectl cluster-info
-Kubernetes control plane is running at https://10.0.0.2
-```

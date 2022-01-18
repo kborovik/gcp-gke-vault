@@ -68,7 +68,7 @@ spec:
             - name: VAULT_CACERT
               value: /vault/userconfig/tls.ca
             - name: VAULT_LOG_FORMAT
-              value: standard
+              value: json
             - name: VAULT_LOG_LEVEL
               value: info
             - name: VAULT_SEAL_TYPE

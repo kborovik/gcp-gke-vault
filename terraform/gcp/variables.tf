@@ -105,12 +105,6 @@ variable "root_ca_tls_subject" {
   }
 }
 
-variable "root_ca_tls_dns_names" {
-  description = "List of DNS names added to Root CA TLS certificate"
-  type        = list(string)
-  default     = [""]
-}
-
 /*
 
 GCP Cloud Build
