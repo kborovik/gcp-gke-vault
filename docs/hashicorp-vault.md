@@ -141,7 +141,7 @@ NAME          READY   STATUS    RESTARTS   AGE
 vaultqss1-0   1/1     Running   0          18m
 ```
 
-**View Vault logs**
+**View Vault logs with kubectl**
 
 ```bash
 > kubectl -n vaultqss1 logs vaultqss1-0 | tail --lines=1 | jq
@@ -179,7 +179,7 @@ vaultqss1-0   1/1     Running   0          18m
     "namespace": {
       "id": "root"
     },
-    "path": "transit/decrypt/payout",
+    "path": "transit/decrypt/test1",
     "data": {
       "ciphertext": "hmac-sha256:56691b97f2abe696536367ebf4b14a0e831c56ed55ef96b4aeb47d864ac8397e"
     },
@@ -194,4 +194,85 @@ vaultqss1-0   1/1     Running   0          18m
   "error": "1 error occurred:\n\t* permission denied\n\n"
 }
 
+```
+
+**View Vault logs with Google CLI**
+
+```bash
+> gcloud logging read --limit=1 '
+resource.type="k8s_container"
+resource.labels.namespace_name="vaultqss1"
+resource.labels.container_name="vault"
+jsonPayload.error="1 error occurred:\n\t* permission denied\n\n"
+jsonPayload.type="response"
+'
+---
+insertId: r1ghxeozllzvdn3c
+jsonPayload:
+  auth:
+    accessor: hmac-sha256:07f2c51c7fd4f4f173d6cb5db30a242d5422a7dc2b709d70c258523af26f92cd
+    client_token: hmac-sha256:eff8e54a66455b7123c010d3c8980fab5537a9b6b0b4a38c7219a02317ce2c4e
+    display_name: approle
+    entity_id: dbd65be7-a643-1e31-cc80-f0217ce6902a
+    metadata:
+      role_name: merchant
+    policies:
+    - default
+    - merchant
+    - vault-client
+    token_issue_time: '2022-01-14T15:35:53Z'
+    token_policies:
+    - default
+    - merchant
+    - vault-client
+    token_ttl: 86400
+    token_type: service
+  error: |+
+    1 error occurred:
+    	* permission denied
+
+  request:
+    client_token: hmac-sha256:eff8e54a66455b7123c010d3c8980fab5537a9b6b0b4a38c7219a02317ce2c4e
+    client_token_accessor: hmac-sha256:07f2c51c7fd4f4f173d6cb5db30a242d5422a7dc2b709d70c258523af26f92cd
+    data:
+      ciphertext: hmac-sha256:56691b97f2abe696536367ebf4b14a0e831c56ed55ef96b4aeb47d864ac8397e
+    id: 7b3e6a0d-1414-94ca-b63b-aa6cb94c3d7b
+    mount_type: transit
+    namespace:
+      id: root
+    operation: update
+    path: transit/decrypt/test1
+    remote_address: 10.9.187.253
+  response:
+    data:
+      error: hmac-sha256:0163ce99e1e95723836da8547bc7195101017724d990cdaf743587ba6f7c3157
+    mount_type: transit
+  type: response
+labels:
+  compute.googleapis.com/resource_name: gke-gcp-usw2-gke-qss-vlt-01-pool1-1-94097757-97vf
+  k8s-pod/app_kubernetes_io/instance: vaultqss1
+  k8s-pod/app_kubernetes_io/managed-by: Helm
+  k8s-pod/app_kubernetes_io/name: vault
+  k8s-pod/app_kubernetes_io/version: 1.9.2
+  k8s-pod/controller-revision-hash: vaultqss1-586c9fd955
+  k8s-pod/helm_sh/chart: vault-1.0.3
+  k8s-pod/statefulset_kubernetes_io/pod-name: vaultqss1-1
+  k8s-pod/vault-active: 'true'
+  k8s-pod/vault-initialized: 'true'
+  k8s-pod/vault-perf-standby: 'false'
+  k8s-pod/vault-sealed: 'false'
+  k8s-pod/vault-version: 1.9.2
+logName: projects/lab5-k8s-d1/logs/stdout
+receiveTimestamp: '2022-01-14T15:35:57.585928428Z'
+resource:
+  labels:
+    cluster_name: gcp-usw2-gke-qss-vlt-01
+    container_name: vault
+    location: us-west2
+    namespace_name: vaultqss1
+    pod_name: vaultqss1-1
+    project_id: lab5-k8s-d1
+  type: k8s_container
+severity: INFO
+timestamp: '2022-01-14T15:35:54.480066912Z'
 ```
