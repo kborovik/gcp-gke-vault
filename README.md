@@ -110,14 +110,14 @@ All deployment scripts perform a narrow function. The CI/CD pipeline aggregates 
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name> -t
+> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name>
 ```
 
 **Deploy Vault HELM chart**
 
 ```bash
 > cd <git_repository_root>
-> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name>
+> ./scripts/vault-deploy.sh -p <google_project> -n <vault_dns_name> -a
 ```
 
 **(One-time) Initialize Vault**

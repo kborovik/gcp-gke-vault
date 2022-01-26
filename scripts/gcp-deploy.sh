@@ -3,7 +3,8 @@
 # shellcheck disable=SC1091
 # shellcheck disable=SC2086
 
-source "scripts/lib-functions.sh"
+git_root=$(git rev-parse --show-toplevel)
+source "${git_root:?}/scripts/lib-functions.sh"
 
 _usage() {
   echo -e "\n Usage: $(basename $0)"
@@ -52,7 +53,7 @@ _activate_gcloud_profile ${google_project}
 
 export GOOGLE_PROJECT=${google_project}
 
-cd terraform/gcp || exit
+cd "${git_root}/terraform/gcp" || exit
 
 _validate_terraform_fmt
 

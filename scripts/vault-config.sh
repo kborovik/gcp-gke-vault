@@ -10,7 +10,8 @@
 # shellcheck disable=SC1091
 # shellcheck disable=SC2086
 
-source "scripts/lib-functions.sh"
+git_root=$(git rev-parse --show-toplevel)
+source "${git_root:?}/scripts/lib-functions.sh"
 
 _usage() {
   echo -e "\n Usage: $(basename ${0})"
@@ -70,7 +71,7 @@ export VAULT_MAX_RETRIES="30"
 export VAULT_ADDR
 export VAULT_TOKEN
 
-cd terraform/vault || exit
+cd "${git_root}/terraform/vault" || exit
 
 _validate_terraform_fmt
 
