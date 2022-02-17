@@ -14,7 +14,7 @@ ssh_keys = [
 ]
 
 # Kubernetes
-enable_gke_01    = true
+enable_gke_01    = false
 gke_machine_type = "e2-medium"
 
 # GCP Certificate Authority Service (Root CA)
