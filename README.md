@@ -1,5 +1,9 @@
 <!-- @format -->
 
+# Why?
+
+The objective of this repository is to help prospective employers answer the question, "Does this candidate know his ABCs?"
+
 # About
 
 The project implements Continuous Delivery (CD) of Hashicorp Vault into a private GCP Kubernetes cluster (GKE).
