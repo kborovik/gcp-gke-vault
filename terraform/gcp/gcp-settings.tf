@@ -25,7 +25,7 @@ GKE local settings
 
 */
 locals {
-  master_authorized_networks = [
+  authorized_networks = [
     {
       cidr_block   = "10.128.0.0/16"
       display_name = "GCP networks"

@@ -153,3 +153,27 @@ resource "google_compute_firewall" "allow_openvpn_main" {
     metadata = "EXCLUDE_ALL_METADATA"
   }
 }
+
+/*
+
+Allow Dataproc cluster (dataproc-01) communication
+
+*/
+resource "google_compute_firewall" "allow_dataproc_01" {
+  name     = "allow-dataproc-01"
+  project  = var.project_id
+  network  = google_compute_network.main.self_link
+  priority = 400
+
+  source_ranges = [
+    "10.128.0.0/16"
+  ]
+
+  target_tags = [
+    "dataproc-01",
+  ]
+
+  allow {
+    protocol = "all"
+  }
+}
