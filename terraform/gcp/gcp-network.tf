@@ -25,6 +25,16 @@ resource "google_compute_subnetwork" "instances" {
   private_ip_google_access = true
 }
 
+resource "google_compute_subnetwork" "dataproc" {
+  name                     = "dataproc"
+  project                  = var.project_id
+  region                   = var.region
+  network                  = google_compute_network.main.name
+  stack_type               = "IPV4_ONLY"
+  ip_cidr_range            = local.dataproc_cidr
+  private_ip_google_access = true
+}
+
 resource "google_compute_subnetwork" "gke_nodes" {
   name                     = "gke-nodes"
   project                  = var.project_id
@@ -141,5 +151,29 @@ resource "google_compute_firewall" "allow_openvpn_main" {
 
   log_config {
     metadata = "EXCLUDE_ALL_METADATA"
+  }
+}
+
+/*
+
+Allow Dataproc cluster (dataproc-01) communication
+
+*/
+resource "google_compute_firewall" "allow_dataproc_01" {
+  name     = "allow-dataproc-01"
+  project  = var.project_id
+  network  = google_compute_network.main.self_link
+  priority = 400
+
+  source_ranges = [
+    "10.128.0.0/16"
+  ]
+
+  target_tags = [
+    "dataproc-01",
+  ]
+
+  allow {
+    protocol = "all"
   }
 }

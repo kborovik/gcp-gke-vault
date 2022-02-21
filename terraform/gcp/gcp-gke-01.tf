@@ -66,7 +66,7 @@ resource "google_container_cluster" "gke_01" {
 
   master_authorized_networks_config {
     dynamic "cidr_blocks" {
-      for_each = local.master_authorized_networks
+      for_each = local.authorized_networks
       content {
         cidr_block   = lookup(cidr_blocks.value, "cidr_block", "")
         display_name = lookup(cidr_blocks.value, "display_name", "")

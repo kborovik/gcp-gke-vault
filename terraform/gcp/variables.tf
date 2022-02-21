@@ -58,13 +58,30 @@ Kubernetes (GKE)
 
 */
 variable "enable_gke_01" {
-  description = "Build flag for Kubernetes Cluster"
+  description = "Build flag for Kubernetes cluster"
   type        = bool
   default     = false
 }
 
 variable "gke_machine_type" {
   description = "Machine type for GKE servers"
+  type        = string
+  default     = "e2-medium"
+}
+
+/*
+
+Dataproc Clusters (Hadoop/Spark)
+
+*/
+variable "enable_dataproc_01" {
+  description = "Build flag for Dataproc cluster"
+  type        = bool
+  default     = false
+}
+
+variable "dataproc_machine_type" {
+  description = "Machine type for Dataproc servers"
   type        = string
   default     = "e2-medium"
 }

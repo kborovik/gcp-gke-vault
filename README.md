@@ -2,9 +2,7 @@
 
 # Why?
 
-The objective of this repository is to help prospective employers answer the question:
-
-**Does this candidate know his ABCs?**
+The objective of this repository is to help prospective employers answer the question: **Does the candidate know his ABCs?**
 
 # About
 
@@ -23,6 +21,7 @@ GCP Cloud Build pipeline steps:
 ## Implemented Google Cloud Services
 
 - GCP Kubernetes Engine (GKE)
+- GCP Dataproc (Apache Hadoop/Spark)
 - GCP Certificate Authority (Root CA)
 - GCP Cloud Key Management (KMS)
 - GCP Cloud Build (CI/CD)
