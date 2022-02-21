@@ -34,7 +34,7 @@ gke_machine_type = "e2-medium"
 Dataproc Clusters (Hadoop/Spark)
 
 */
-enable_dataproc_01    = true
+enable_dataproc_01    = false
 dataproc_machine_type = "e2-medium"
 
 /*

@@ -2,9 +2,7 @@
 
 # Why?
 
-The objective of this repository is to help prospective employers answer the question:
-
-**Does this candidate know his ABCs?**
+The objective of this repository is to help prospective employers answer the question: **Does the candidate know his ABCs?**
 
 # About
 
