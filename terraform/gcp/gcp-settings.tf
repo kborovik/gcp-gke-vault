@@ -14,6 +14,7 @@ Network Settings
 */
 locals {
   instances_cidr  = "10.128.0.0/18"
+  dataproc_cidr   = "10.128.64.0/18"
   gke_nodes_cidr  = "10.128.128.0/18"
   gke_master_cidr = "10.128.255.240/28"
 }

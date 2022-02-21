@@ -1,8 +1,16 @@
-# Project
+/*
+
+Project general settings
+
+*/
 project_id = "lab5-vault-d1"
 region     = "us-central1"
 
-# GCP Instances
+/*
+
+GCE instances
+
+*/
 enable_gke_proxy      = true
 enable_vpn_host       = true
 instance_machine_type = "e2-small"
@@ -13,11 +21,27 @@ ssh_keys = [
   },
 ]
 
-# Kubernetes
+/*
+
+Kubernetes cluster
+
+*/
 enable_gke_01    = false
 gke_machine_type = "e2-medium"
 
-# GCP Certificate Authority Service (Root CA)
+/*
+
+Dataproc Clusters (Hadoop/Spark)
+
+*/
+enable_dataproc_01    = true
+dataproc_machine_type = "e2-medium"
+
+/*
+
+GCP Certificate Authority Service (Root CA)
+
+*/
 enable_ca_tls = true
 root_ca_tls_subject = {
   common_name         = ""
@@ -30,7 +54,11 @@ root_ca_tls_subject = {
   postal_code         = ""
 }
 
-# Cloud Build
+/*
+
+Cloud Build
+
+*/
 enable_cloudbuild_pull_request = true
 enable_cloudbuild_push         = true
 enable_cloudbuild_tag          = false

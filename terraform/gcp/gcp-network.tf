@@ -25,6 +25,16 @@ resource "google_compute_subnetwork" "instances" {
   private_ip_google_access = true
 }
 
+resource "google_compute_subnetwork" "dataproc" {
+  name                     = "dataproc"
+  project                  = var.project_id
+  region                   = var.region
+  network                  = google_compute_network.main.name
+  stack_type               = "IPV4_ONLY"
+  ip_cidr_range            = local.dataproc_cidr
+  private_ip_google_access = true
+}
+
 resource "google_compute_subnetwork" "gke_nodes" {
   name                     = "gke-nodes"
   project                  = var.project_id

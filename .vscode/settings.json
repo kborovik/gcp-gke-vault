@@ -13,6 +13,7 @@
     "CLOUDSDK",
     "containeranalysis",
     "datapath",
+    "Dataproc",
     "dnsutils",
     "fortanix",
     "FUNCNAME",
@@ -37,6 +38,7 @@
     "pgrep",
     "pipefail",
     "pkill",
+    "preemptible",
     "privateca",
     "Pyca",
     "rrdatas",
@@ -48,6 +50,7 @@
     "subnetworks",
     "templatefile",
     "tfvars",
+    "timedatectl",
     "toset",
     "userconfig"
   ]
