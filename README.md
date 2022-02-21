@@ -23,6 +23,7 @@ GCP Cloud Build pipeline steps:
 ## Implemented Google Cloud Services
 
 - GCP Kubernetes Engine (GKE)
+- GCP Dataproc (Apache Hadoop/Spark)
 - GCP Certificate Authority (Root CA)
 - GCP Cloud Key Management (KMS)
 - GCP Cloud Build (CI/CD)

@@ -26,7 +26,7 @@ ssh_keys = [
 Kubernetes cluster
 
 */
-enable_gke_01    = false
+enable_gke_01    = true
 gke_machine_type = "e2-medium"
 
 /*
